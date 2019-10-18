@@ -23,7 +23,7 @@ const app = express();
 
 app.use(bodyParser.json());
 
-app.get('/', (request, response) => response.redirect('/movie'));
+//app.get('/', (request, response) => response.redirect('/movie'));
 
 app.use(morgan('common', { immediate: true }));
 
