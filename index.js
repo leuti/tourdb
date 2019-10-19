@@ -10,25 +10,21 @@
 // ------------------------------------
 // npm install body-parser (Node.js body parsing middleware)
 
-const express = require('express');
-const morgan = require('morgan');
+const express = require('express');                 // Express library expressjs.com
+const morgan = require('morgan');                   // ??? Purpose
 const bodyParser = require('body-parser');          // unsure if required
-const expressJwt = require('express-jwt');
-//const swaggerUi = require('swagger-ui-express');
-const movieRouter = require('./movie');             // node assumes index.js as relevant file within ./movie
-const loginRouter = require('./auth');
-//const swaggerSpec = require('./swagger');   
+const expressJwt = require('express-jwt');          // library for JSON web token
+const trackRouter = require('./track');             // node assumes index.js as relevant file within ./track
+const loginRouter = require('./auth');              // node assumes index.js as relevant file within ./auth
 
 const app = express();
 
 app.use(bodyParser.json());
 
-//app.get('/', (request, response) => response.redirect('/movie'));
-
 app.use(morgan('common', { immediate: true }));
 
-app.use('/login', loginRouter);
-app.use('/movie', expressJwt({ secret: 'secret' }), movieRouter);
+app.use('/login', loginRouter);                                         // Call .auth.js which returns JWT
+app.use('/track', expressJwt({ secret: 'secret' }), trackRouter);       // Gives access to trackRouter if token is valid
 app.use(function(err, request, response, next) {
     if (err.name === 'UnauthorizedError') {
         response.status(401).json('unauthorized');
@@ -36,7 +32,6 @@ app.use(function(err, request, response, next) {
         next();
     }
 });
-//app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 app.listen(8080, () => {
     console.log('Server is listening to http://localhost:8080');

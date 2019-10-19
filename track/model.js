@@ -3,14 +3,35 @@ const connection = mysql.createConnection({
     host: 'localhost',
     user: 'root',
     password: 'root',
-    database: 'movies-db',
+    database: 'tourdb2_prod',
 });
 
 connection.connect();
 
 function getAll(options) {
     return new Promise((resolve, reject) => {
-        let query = `SELECT * FROM movies`;
+        let query = `SELECT 
+            trkId,
+            trkTrackName,
+            trkRoute,
+            trkDateBegin,
+            trkDateFinish,
+            trkTypeFid,
+            trkSubtypeFid,
+            trkOrg,
+            trkEvent,
+            trkRemarks,
+            trkDistance,
+            trkTimeOverall,
+            trkTimeToPeak,
+            trkTimeToFinish,
+            trkGrade,
+            trkMeterUp,
+            trkMeterDown,
+            trkCountry,
+            trkUsrId
+        FROM tbl_tracks 
+        LIMIT 20`;
 
         if (options.sort && ['asc', 'desc'].includes(options.sort.toLowerCase())) {
             query += ' ORDER BY title ' + options.sort;
