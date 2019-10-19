@@ -3,7 +3,7 @@ const connection = mysql.createConnection({
     host: 'localhost',
     user: 'root',
     password: 'root',
-    database: 'movies-db',
+    database: 'tourdb2_prod',
 });
 
 connection.connect();
@@ -19,9 +19,9 @@ function get(query = {}) {
         }
 
         const queryString = 
-            `SELECT * FROM users WHERE ` + queryElements.join(' AND ');
+            `SELECT * FROM tbl_users WHERE ` + queryElements.join(' AND ');
 
-        connection.query(queryString, [query.username, query.password], (error, results) => {
+        connection.query(queryString, [query.usrLogin, query.usrPassword], (error, results) => {
             if (error) {
                 console.log(error);
                 console.log("db query not ok")

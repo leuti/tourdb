@@ -10,27 +10,19 @@ connection.connect();
 
 function getAll(options) {
     return new Promise((resolve, reject) => {
-        let query = `SELECT 
-            trkId,
-            trkTrackName,
-            trkRoute,
-            trkDateBegin,
-            trkDateFinish,
-            trkTypeFid,
-            trkSubtypeFid,
-            trkOrg,
-            trkEvent,
-            trkRemarks,
-            trkDistance,
-            trkTimeOverall,
-            trkTimeToPeak,
-            trkTimeToFinish,
-            trkGrade,
-            trkMeterUp,
-            trkMeterDown,
-            trkCountry,
-            trkUsrId
-        FROM tbl_tracks 
+
+        // Select track main data
+        let query = `SELECT t.trkId, t.trkTrackName, t.trkRoute, t.trkDateBegin, t.trkTypeFid,
+            t.trkSubtypeFid, t.trkOrg, t.trkEvent, t.trkRemarks, t.trkDistance, t.trkTimeOverall, 
+            t.trkTimeToPeak, t.trkTimeToFinish, t.trkGrade, t.trkMeterUp, t.trkMeterDown, t.trkCountry,
+            GROUP_CONCAT(CONCAT(p.prtFirstName, ' ', p.prtLastName)  SEPARATOR ', ') as participants, 
+            GROUP_CONCAT(wayp.waypNameLong SEPARATOR ', ') as peaks 
+        FROM tbl_tracks t
+        JOIN tbl_track_part tp ON t.trkId = tp.trpaTrkId
+        JOIN tbl_part p ON tp.trpaPartId = p.prtId
+        JOIN tbl_track_wayp tw ON t.trkId = tw.trwpTrkId
+        JOIN tbl_waypoints wayp ON tw.trwpWaypID = wayp.waypID
+        GROUP BY t.trkId 
         LIMIT 20`;
 
         if (options.sort && ['asc', 'desc'].includes(options.sort.toLowerCase())) {

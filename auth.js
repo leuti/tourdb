@@ -7,8 +7,8 @@ const router = Router();
 router.post('/', (request, response) => {
     userModel
         .get({
-            username: request.body.username,
-            password: request.body.password,
+            usrLogin: request.body.login,
+            usrPassword: request.body.password,
         })
         .then(
             user => {
