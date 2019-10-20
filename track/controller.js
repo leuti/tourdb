@@ -1,45 +1,21 @@
 const model = require('./model');
 
-function getLinks(current, base) {
-    const links = [
-        { rel: 'base', href: base + '/' },
-        { rel: 'sort-ascending', href: base + '/?sort=asc' },
-        { rel: 'sort-descending', href: base + '/?sort=desc' },
-    ];
-    return links.map(link => {
-        if (current.length > 0 && link.rel.includes(current)) {
-            link.rel = 'self';
-        } else if (current.length === 0 && link.rel === 'base') {
-            link.rel = 'self';
-        }
-        return link;
-    });
-}
-
 function listAction(request, response) {
     const options = {
         sort: request.query.sort ? request.query.sort : '',
     };
-    model.getAll(options).then(
+    model.getAll(request.user.usrId, options).then(
         tracks => {
-            const tracksResponse = {
-                tracks,
-                links: getLinks(options.sort, request.baseUrl),
-            };
-            response.json(tracksResponse);
+            response.json(tracks);
         },
         error => response.status(500).json(error),
     );
 }
 
 function detailAction(request, response) {
-    model.get(request.params.id).then(
+    model.get(request.params.id, request.user.usrId).then(
         track => {
-            const tracksResponse = {
-                ...track,
-                links: [{ rel: 'self', href: request.baseUrl + '/' }],
-            };
-            response.json(tracksResponse);
+            response.json(track);
         },
         error => response.status(500).json(error),
     );

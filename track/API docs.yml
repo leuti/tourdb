@@ -1,0 +1,77 @@
+openapi: 3.0.0
+info:
+  version: '0.0.1'
+  title: 'tourdb'
+  description: 'tourdb - the redesigned'
+servers: 
+  - url: http://localhost:8080
+paths: 
+  /tracks/{trkId}:
+    get:
+      summary: Returns a track by ID
+      parameters:
+        - name: trkId
+          in: path
+          required: true
+          description: Returns a single track
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Track successfully retrieved
+          content:
+            application/json:
+              schema: {
+                $ref: '#/components/schemas/tracks'
+              }  
+        '400':
+          description: The specified track ID is invalid (e.g. not a number)
+        '404':
+          description: A track with the specified ID was not found
+    
+  
+
+# Should this be a single object or an array? For the post method it should be a single object
+components:
+  schemas:
+    tracks:
+      type: array
+      properties: 
+        trkId: 
+          type: number
+        trkTrackName: 
+          type: string
+        trkRoute:
+          type: string
+        trkDateBegin:
+          type: string
+        trkTypeFid:
+          type: string
+        trkSubtypeFid:
+          type: string
+        trkOrg:
+          type: string
+        trkEvent:
+          type: string
+        trkRemarks:
+          type: string
+        trkDistance:
+          type: string
+        trkTimeOverall:
+          type: string
+        trkTimeToPeak:
+          type: string
+        trkTimeToFinish:
+          type: string
+        trkGrade:
+          type: string
+        trkMeterUp:
+          type: string
+        trkMeterDown:
+          type: string
+        trkCountry:
+          type: string
+        participants:
+          type: string
+        peaks :
+          type: string

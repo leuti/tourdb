@@ -5,6 +5,7 @@ const userModel = require('./user/model');
 const router = Router();
 
 router.post('/', (request, response) => {
+    console.log("auth.js router reached");
     userModel
         .get({
             usrLogin: request.body.login,
@@ -14,7 +15,7 @@ router.post('/', (request, response) => {
             user => {
                 if (user) {
                     const payload = { ...user };
-                    delete payload.password;
+                    delete payload.usrPassword;
                     const token = jwt.sign(payload, 'secret');
                     response.json({ token });
                 } else {

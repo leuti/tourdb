@@ -8,7 +8,7 @@ const connection = mysql.createConnection({
 
 connection.connect();
 
-function getAll(options) {
+function getAllRecs(usrId, options) {
     return new Promise((resolve, reject) => {
 
         // Select track main data
@@ -22,14 +22,15 @@ function getAll(options) {
         JOIN tbl_part p ON tp.trpaPartId = p.prtId
         JOIN tbl_track_wayp tw ON t.trkId = tw.trwpTrkId
         JOIN tbl_waypoints wayp ON tw.trwpWaypID = wayp.waypID
+        WHERE t.trkUsrId = ?
         GROUP BY t.trkId 
         LIMIT 20`;
-
+        
         if (options.sort && ['asc', 'desc'].includes(options.sort.toLowerCase())) {
-            query += ' ORDER BY title ' + options.sort;
+            //query += ' ORDER BY title ' + options.sort;                   // Sorting needs to be implemented with GRID
             }
 
-        connection.query(query, (error, results) => {
+        connection.query(query, [usrId], (error, results) => {
             if (error) {
                 console.log(error);
                 reject(error);
@@ -40,7 +41,7 @@ function getAll(options) {
     });
 }
 
-function getOne(id) {
+function getOne(id, usrId) {
     return new Promise((resolve, reject) => {
         const query = `SELECT t.trkId, t.trkTrackName, t.trkRoute, t.trkDateBegin, t.trkTypeFid,
             t.trkSubtypeFid, t.trkOrg, t.trkEvent, t.trkRemarks, t.trkDistance, t.trkTimeOverall, 
@@ -52,8 +53,8 @@ function getOne(id) {
         JOIN tbl_part p ON tp.trpaPartId = p.prtId
         JOIN tbl_track_wayp tw ON t.trkId = tw.trwpTrkId
         JOIN tbl_waypoints wayp ON tw.trwpWaypID = wayp.waypID
-        WHERE t.trkId = ?`; 
-        connection.query(query, [id], (error, results) => {
+        WHERE t.trkId = ? AND t.trkUsrId = ?`; 
+        connection.query(query, [id, usrId], (error, results) => {
             if (error) {
                 console.log(error);
                 reject(error);
@@ -112,12 +113,14 @@ function remove(id) {
 }
 
 module.exports = {
-    getAll,
-    get(id) {
-        return getOne(id);
+    getAll(usrId, options) {
+        return getAllRecs(usrId, options);
     },
-    delete(id) {
-        return remove(id);
+    get(id, usrId) {
+        return getOne(id, usrId);
+    },
+    delete(id, usrId) {
+        return remove(id, usrId);
     },
     save(movie) {
         if (!movie.id) {
