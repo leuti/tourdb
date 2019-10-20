@@ -9,7 +9,6 @@ const connection = mysql.createConnection({
 connection.connect();
 
 function get(query = {}) {
-    console.log(query);
     return new Promise((resolve, reject) => {
         let queryElements = [];
         if (query) {
@@ -24,10 +23,8 @@ function get(query = {}) {
         connection.query(queryString, [query.usrLogin, query.usrPassword], (error, results) => {
             if (error) {
                 console.log(error);
-                console.log("db query not ok")
                 reject(error);
             } else {
-                console.log("db query OK");
                 resolve(results[0]);
             }
         });
