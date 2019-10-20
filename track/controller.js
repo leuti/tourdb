@@ -23,8 +23,26 @@ function detailAction(request, response) {
 
 function createAction(request, response) {
     const track = {
-        title: request.body.title,
-        year: request.body.year,
+        name: request.body.name,
+        route: request.body.route,
+        dateBegin: request.body.dateBegin,
+        type: request.body.type,
+        subtype: request.body.subtype,
+        org: request.body.org,
+        event: request.body.event,
+        remarks: request.body.remarks,
+        distance: request.body.distance,
+        timeOverall: request.body.timeOverall,
+        timeToPeak: request.body.timeToPeak,
+        timeToFinish: request.body.timeToFinish,
+        grade: request.body.grade,
+        meterUp: request.body.meterUp,
+        meterDown: request.body.meterDown,
+        country: request.body.country,
+        participants: request.body.participants,
+        huts: request.body.huts,
+        peaks: request.body.peaks,
+        waypoints: request.body.waypoints,
     };
     model
         .save(track)

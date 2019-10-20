@@ -163,7 +163,15 @@ function getOne(id, usrId) {
     });
 }
 
-function insert(movie) {
+function insert(track) {
+    // Challange: I need to get the typId of the type (e.g. 'gi') from a first query, then I need to get
+    //            the subtypeId and then I need to perform the insert
+    //
+    // This page shows how my problem could be resolved
+    // https://stackoverflow.com/questions/46893736/node-mysql-how-to-execute-more-queries-based-on-another-query
+    //
+    // Alternative: Perform all these actions in one INSERT statement
+
     return new Promise((resolve, reject) => {
         const query = 'INSERT INTO movies (title, year) VALUES (?, ?)';
         connection.query(query, [movie.title, movie.year], (error, results) => {
@@ -220,11 +228,11 @@ module.exports = {
     delete(id, usrId) {
         return remove(id, usrId);
     },
-    save(movie) {
-        if (!movie.id) {
-            return insert(movie);
+    save(track) {
+        if (!track.id) {
+            return insert(track);
         } else {
-            return update(movie);
+            return update(track);
         }
     },
 };
