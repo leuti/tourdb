@@ -37,41 +37,49 @@ components:
     tracks:
       type: array
       properties: 
-        trkId: 
+        id:
           type: number
-        trkTrackName: 
+        name: 
           type: string
-        trkRoute:
+        route:
           type: string
-        trkDateBegin:
+        dateBegin: 
           type: string
-        trkTypeFid:
+          format: date
+        type: 
           type: string
-        trkSubtypeFid:
+        subtype: 
           type: string
-        trkOrg:
+        org: 
           type: string
-        trkEvent:
+        event: 
           type: string
-        trkRemarks:
+        remarks: 
           type: string
-        trkDistance:
+        distance:
+          type: number
+        timeOverall: 
           type: string
-        trkTimeOverall:
+          format: date
+        timeToPeak: 
           type: string
-        trkTimeToPeak:
+          format: date
+        timeToFinish: 
           type: string
-        trkTimeToFinish:
+          format: date
+        grade:
           type: string
-        trkGrade:
+        meterUp:
+          type: number
+        meterDown:
+          type: number
+        country:
           type: string
-        trkMeterUp:
+        participants: 
           type: string
-        trkMeterDown:
+        huts: 
           type: string
-        trkCountry:
+        peaks: 
           type: string
-        participants:
-          type: string
-        peaks :
+        waypoints: 
           type: string
