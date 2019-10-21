@@ -39,34 +39,39 @@ components:
       properties: 
         id:
           type: number
-        name: 
+        name:
           type: string
         route:
           type: string
-        dateBegin: 
+        dateBegin:
           type: string
           format: date
-        type: 
+        dateFinish:
           type: string
-        subtype: 
+          format: data
+        subtype:
           type: string
-        org: 
+        org:
           type: string
-        event: 
+        event:
           type: string
-        remarks: 
+        remarks:
           type: string
         distance:
           type: number
-        timeOverall: 
+        startEle:
+          type: number
+        peakEle:
+          type: number
+        peakTime:
           type: string
-          format: date
-        timeToPeak: 
-          type: string
-          format: date
-        timeToFinish: 
-          type: string
-          format: date
+          format: time
+        lowEle:
+          type: number
+        lowTime:
+          type: number
+        finishEle:
+          type: number
         grade:
           type: string
         meterUp:
@@ -75,11 +80,15 @@ components:
           type: number
         country:
           type: string
-        participants: 
+        trkUsrId:
+          type: number
+        coordinates:
           type: string
-        huts: 
-          type: string
-        peaks: 
-          type: string
-        waypoints: 
-          type: string
+        coordTop:
+          type: number
+        coordBottom:
+          type: number
+        coordLeft:
+          type: number
+        coordRight:
+          type: number
