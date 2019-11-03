@@ -1,5 +1,6 @@
+-- ---------------------------------
 -- Migrate data for table kmlstyles'
-
+-- ---------------------------------
 INSERT INTO `tourdb_new`.`kmlStyles` (
     `kmlstyleId`, 
     `code`, 
@@ -20,8 +21,9 @@ INSERT INTO `tourdb_new`.`kmlStyles` (
     `styLineHighlighted`
 FROM `tourdb_prod`.`tbl_kmlstyle`; 
 
-
+-- ----------------------------
 -- Migrate data for table users
+-- ----------------------------
 -- ToDo:
 -- - Change email to unique value
 
@@ -49,8 +51,9 @@ INSERT INTO `tourdb_new`.`users` (
     ( SELECT usrId FROM `tourdb_prod`.`tbl_users` WHERE `usrLogin` = 'LEUT' )
 FROM `tourdb_prod`.`tbl_users`;
 
+-- ----------------------
 -- Create table countries
-
+-- ----------------------
 INSERT INTO `tourdb_new`.`countries` (
     `name`,
     `ISOcode`
@@ -305,8 +308,9 @@ INSERT INTO `tourdb_new`.`countries` (
     ('Zambia', 'ZM'),
     ('Zimbabwe', 'ZW');
 
+-- --------------------'
 -- Create table cantons
-
+-- --------------------
 INSERT INTO `cantons` (
     `name`,
     `code`  
@@ -337,9 +341,10 @@ INSERT INTO `cantons` (
     ('Wallis','VS'),
     ('Zürich','ZH'),
     ('Zug','ZG');
--- '
--- tourdb_new.areas (load regions first)
 
+-- -------------------------------------'
+-- tourdb_new.areas (load regions first)
+-- -------------------------------------
 INSERT INTO `tourdb_new`.`areas` (
     `code`,
     `name`
@@ -349,8 +354,9 @@ SELECT
     `regNameLong`
 FROM `tourdb_prod`.`tbl_regions`;
 
+-- -----------------------------
 -- tourdb_new.areas (load areas)
-
+-- -----------------------------
 INSERT INTO `tourdb_new`.`areas` (
     `fk_parentId`,
     `code`,
@@ -364,8 +370,9 @@ FROM `tourdb_prod`.`tbl_areas`
 JOIN `tourdb_prod`.`tbl_regions` ON `tourdb_prod`.`tbl_areas`.`areaRegionFID` = `tourdb_prod`.`tbl_regions`.`regID`
 JOIN `tourdb_new`.`areas` ON `tourdb_prod`.`tbl_regions`.`regNameShort` = `tourdb_new`.`areas`.`code`;
 
-
--- tourdb_new.types (load types - fk_parentId = NULLL )
+-- --------------------------------------------------
+-- tourdb_new.types (load types - fk_parentId = NULL)
+-- --------------------------------------------------
 INSERT INTO `tourdb_new`.`types` (
     `code`,
     `name`,
@@ -378,8 +385,11 @@ SELECT
 FROM `tourdb_prod`.`tbl_types`
 WHERE `tourdb_prod`.`tbl_types`.`typParentId` IS NULL;
 
--- tourdb_new.types (load types - fk_parentId <> NULL )
-
+-- ---------------------------------------------------
+-- tourdb_new.types (load types - fk_parentId <> NULL)
+-- ---------------------------------------------------
+-- TASKS:
+-- - remove COLATE FROM TABLE (added because join did not work otherwise)
 INSERT INTO `types` (
     `code`,
     `name`,
@@ -396,12 +406,11 @@ JOIN `tourdb_prod`.`tbl_types` AS `ptype` ON `stype`.`typParentId` = `ptype`.`ty
 JOIN `tourdb_new`.`types` AS ttype ON ptype.typCode = ttype.code
 WHERE `stype`.`typParentId` IS NOT NULL;
 
-
+-- -----------------
 -- tourdb_new.grades
--- ================================
--- === TASK: Add type to table
--- ================================
-
+-- -----------------
+-- TASK: 
+-- - add type to table
 INSERT INTO `tourdb_new`.`grades` (
     `code`,
     `group`,
@@ -413,16 +422,30 @@ SELECT
     `tourdb_prod`.`tbl_grades`.`grdSort`
 FROM `tourdb_prod`.`tbl_grades`;
 
+-- --------------------
 -- tourdb_new.waypoints
+-- --------------------
 
+-- ---------------
 -- tourdb_new.part
+-- ---------------
 
+-- -----------------
 -- tourdb_new.tracks
+-- -----------------
 
+-- ---------------------
 -- tourdb_new.track_part
+-- ---------------------
 
+-- ---------------------
 -- tourdb_new.track_wayp
+-- ---------------------
 
+-- -------------------
 -- tourdb_new.segments
+-- -------------------
 
+-- ------------------
 -- tourdb_new.sources
+-- ------------------

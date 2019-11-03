@@ -16,11 +16,13 @@
 CREATE DATABASE IF NOT EXISTS `tourdb_new` /*!40100 DEFAULT CHARACTER SET utf8 */;
 USE `tourdb_new`;
 
--- ---------------------------------------------
+-- =============================================
 -- Level 1 tables - required to be created first
--- ---------------------------------------------
+-- =============================================
 
+-- --------------------
 -- tourdb_new.kmlStyles
+-- --------------------
 CREATE TABLE IF NOT EXISTS `kmlStyles` (
   `kmlstyleId` int(11) NOT NULL AUTO_INCREMENT,
   `code` varchar(10) NOT NULL,
@@ -33,7 +35,9 @@ CREATE TABLE IF NOT EXISTS `kmlStyles` (
   PRIMARY KEY (`kmlstyleId`)
 ) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=utf8;
 
+-- ----------------
 -- tourdb_new.users
+-- ----------------
 CREATE TABLE IF NOT EXISTS `users` (
   `userId` int(11) NOT NULL AUTO_INCREMENT COMMENT 'Unique Id of table',
   `login` varchar(50) NOT NULL COMMENT 'Login the user enters to access the db',
@@ -50,7 +54,9 @@ CREATE TABLE IF NOT EXISTS `users` (
   CONSTRAINT `email_UNIQUE` UNIQUE (`email`)
 ) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=utf8;
 
+-- --------------------
 -- tourdb_new.countries
+-- --------------------
 CREATE TABLE IF NOT EXISTS `countries` (
     `countryId` int(11) NOT NULL AUTO_INCREMENT,
     `ISOcode` VARCHAR(2) NOT NULL,  
@@ -59,7 +65,9 @@ CREATE TABLE IF NOT EXISTS `countries` (
     CONSTRAINT `ISOcode_UNIQUE` UNIQUE (`ISOcode`)
 ) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=utf8;
 
+-- ------------------
 -- tourdb_new.cantons
+-- ------------------
 CREATE TABLE IF NOT EXISTS `cantons` (
     `cantonId` int(11) NOT NULL AUTO_INCREMENT,
     `code` VARCHAR(2) NOT NULL,  
@@ -67,7 +75,9 @@ CREATE TABLE IF NOT EXISTS `cantons` (
     PRIMARY KEY (`cantonId`)
 ) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=utf8;
 
+-- ----------------
 -- tourdb_new.areas
+-- ----------------
 CREATE TABLE IF NOT EXISTS `areas` (
     `areaId` int(11) NOT NULL AUTO_INCREMENT,
     `fk_parentId` int(11) DEFAULT NULL,
@@ -79,7 +89,9 @@ CREATE TABLE IF NOT EXISTS `areas` (
         REFERENCES `areas` (`areaId`)
 ) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=utf8;
 
+-- ----------------
 -- tourdb_new.types
+-- ----------------
 CREATE TABLE IF NOT EXISTS `types` (
     `typeId` int(11) NOT NULL AUTO_INCREMENT COMMENT 'Unique Primary Id',
     `code` varchar(10) NOT NULL COLLATE 'utf32_general_ci' COMMENT 'Code of Type (e.g. SST)',
@@ -92,7 +104,9 @@ CREATE TABLE IF NOT EXISTS `types` (
         REFERENCES `types` (`typeId`)
 ) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=utf8 COMMENT='Collects all types and subtypes for tracks, waypoints, segs';
 
+-- -----------------
 -- tourdb_new.grades
+-- -----------------
 CREATE TABLE IF NOT EXISTS `grades` (
     `gradeId` int(11) NOT NULL AUTO_INCREMENT,
     `code` varchar(10) NOT NULL,
@@ -105,7 +119,9 @@ CREATE TABLE IF NOT EXISTS `grades` (
         REFERENCES `types` (`typeId`)
 ) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=utf8;
 
+-- --------------------
 -- tourdb_new.waypoints
+-- --------------------
 CREATE TABLE IF NOT EXISTS `waypoints` (
     `waypointId` int(11) NOT NULL AUTO_INCREMENT,
     `name` varchar(255) DEFAULT NULL,
@@ -148,7 +164,9 @@ CREATE TABLE IF NOT EXISTS `waypoints` (
         REFERENCES `users` (`userId`)
 ) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=utf8;
 
+-- ---------------
 -- tourdb_new.part
+-- ---------------
 CREATE TABLE IF NOT EXISTS `participants` (
     `partId` int(11) NOT NULL AUTO_INCREMENT,
     `firstName` varchar(30) DEFAULT NULL,
@@ -170,7 +188,9 @@ CREATE TABLE IF NOT EXISTS `participants` (
         REFERENCES `users` (`userId`)
 ) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=utf8;
 
+-- -----------------
 -- tourdb_new.tracks
+-- -----------------
 CREATE TABLE IF NOT EXISTS `tracks` (
     `trackId` int(11) NOT NULL AUTO_INCREMENT,
     `name` varchar(255) DEFAULT NULL COMMENT 'Target of the track',
@@ -227,7 +247,9 @@ CREATE TABLE IF NOT EXISTS `tracks` (
         REFERENCES `users` (`userId`)
 ) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=utf8;
 
+-- ---------------------
 -- tourdb_new.track_part
+-- ---------------------
 CREATE TABLE IF NOT EXISTS `track_part` (
     `trackPartId` int(11) NOT NULL AUTO_INCREMENT COMMENT 'record ID',
     `fk_trackId` int(11) NOT NULL COMMENT 'ID of related track',
@@ -251,7 +273,9 @@ CREATE TABLE IF NOT EXISTS `track_part` (
         REFERENCES `users` (`userId`)
 ) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=utf8 COMMENT='Table links tracks with waypoints';
 
+-- ---------------------
 -- tourdb_new.track_wayp
+-- ---------------------
 CREATE TABLE IF NOT EXISTS `track_wayp` (
     `trackWaypId` int(11) NOT NULL AUTO_INCREMENT COMMENT 'record ID',
     `fk_trackId` int(11) NOT NULL COMMENT 'ID of related track',
@@ -276,7 +300,9 @@ CREATE TABLE IF NOT EXISTS `track_wayp` (
         REFERENCES `users` (`userId`)
 ) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=utf8 COMMENT='Table links tracks with waypoints';
 
+-- -------------------
 -- tourdb_new.segments
+-- -------------------
 CREATE TABLE IF NOT EXISTS `segments` (
   `segmentId` int(11) NOT NULL AUTO_INCREMENT,
   `name` varchar(255) DEFAULT NULL,
@@ -315,7 +341,9 @@ CREATE TABLE IF NOT EXISTS `segments` (
   PRIMARY KEY (`segmentId`)
 ) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=utf8;
 
+-- ------------------
 -- tourdb_new.sources
+-- ------------------
 CREATE TABLE IF NOT EXISTS `sources` (
   `sourceId` int(11) NOT NULL AUTO_INCREMENT,
   `code` varchar(50) NOT NULL,
