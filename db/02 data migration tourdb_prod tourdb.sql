@@ -46,9 +46,9 @@ INSERT INTO `tourdb_new`.`users` (
     `usrEmail`,
     `usrPasswd`,
     `usrCreatedDate`,
-    ( SELECT usrId FROM `tourdb_prod`.`tbl_users` WHERE `usrLogin` = 'LEUT' ),
+    ( SELECT `tourdb_new`.`userId` FROM `tourdb_new`.`users` WHERE `login` = 'LEUT' ),
     `usrUpdatedDate`,
-    ( SELECT usrId FROM `tourdb_prod`.`tbl_users` WHERE `usrLogin` = 'LEUT' )
+    ( SELECT `tourdb_new`.`userId` FROM `tourdb_new`.`users` WHERE `login` = 'LEUT' )
 FROM `tourdb_prod`.`tbl_users`;
 
 -- ----------------------
@@ -56,7 +56,7 @@ FROM `tourdb_prod`.`tbl_users`;
 -- ----------------------
 INSERT INTO `tourdb_new`.`countries` (
     `name`,
-    `ISOcode`
+    `code`
 ) VALUES
     ('Afghanistan', 'AF'),
     ('Albania', 'AL'),
@@ -425,14 +425,161 @@ FROM `tourdb_prod`.`tbl_grades`;
 -- --------------------
 -- tourdb_new.waypoints
 -- --------------------
+INSERT INTO `tourdb_new`.`waypoints` (
+	`name`,
+	`fk_typeId`,
+	`fk_areaId`,
+    `fk_regionId`,
+	`canton`,
+	`fk_countryId`,
+	`altitude`,
+	`owner`,
+	`website`,
+	`remarks`,
+	`UIAA4000`,
+	`topOfCanton`,
+	`coordLV3Est`,
+	`coordLV3Nord`,
+	`coordWGS84E`,
+	`coordWGS84N`,
+	`crtDate`,
+	`fk_crtUserId`,
+	`updDate`,
+	`fk_updUserId`
+) 
+SELECT
+    IF(ISNULL(`tourdb_prod`.`tbl_waypoints`.`waypNameLong`), `tourdb_prod`.`tbl_waypoints`.`waypNameShort`,`tourdb_prod`.`tbl_waypoints`.`waypNameLong`) AS name,
+	`tourdb_new`.`types`.`typeId`,
+	`tourdb_new`.`areas`.`areaId` AS area,
+    IF(`regions`.`areaId` = 0, 1, `regions`.`areaId`) AS region,
+	`tourdb_prod`.`tbl_waypoints`.`waypCanton`,
+	`tourdb_new`.`countries`.`countryId`,
+	`tourdb_prod`.`tbl_waypoints`.`waypAltitude`,
+	`tourdb_prod`.`tbl_waypoints`.`waypOwner`,
+	`tourdb_prod`.`tbl_waypoints`.`waypWebsite`,
+	`tourdb_prod`.`tbl_waypoints`.`waypRemarks`,
+	`tourdb_prod`.`tbl_waypoints`.`waypUIAA4000`,
+	IF(`tourdb_prod`.`tbl_waypoints`.`waypToOfCant` = 0, NULL, `tourdb_prod`.`tbl_waypoints`.`waypToOfCant`),
+	`tourdb_prod`.`tbl_waypoints`.`waypCoordLV3Est`,
+	`tourdb_prod`.`tbl_waypoints`.`waypCoordLV3Nord`,
+	`tourdb_prod`.`tbl_waypoints`.`waypCoordWGS84E`,
+	`tourdb_prod`.`tbl_waypoints`.`waypCoordWGS84N`,
+	`tourdb_prod`.`tbl_waypoints`.`waypCreatedDate`,
+	( SELECT `tourdb_new`.`userId` FROM `tourdb_new`.`users` WHERE `login` = 'LEUT' ),
+	`tourdb_prod`.`tbl_waypoints`.`waypUpdatedDate`,
+	( SELECT `tourdb_new`.`userId` FROM `tourdb_new`.`users` WHERE `login` = 'LEUT' )
+	
+FROM `tourdb_prod`.`tbl_waypoints`
+-- type
+JOIN `tourdb_prod`.`tbl_types` ON `tourdb_prod`.`tbl_waypoints`.`waypTypeFid` = `tourdb_prod`.`tbl_types`.`typId`
+JOIN `tourdb_new`.`types` ON `tourdb_prod`.`tbl_types`.`typCode` = `tourdb_new`.`types`.`code`
+-- region
+LEFT OUTER JOIN `tourdb_prod`.`tbl_regions` ON `tourdb_prod`.`tbl_waypoints`.`waypRegionFID` = `tourdb_prod`.`tbl_regions`.`regID`
+LEFT OUTER JOIN `tourdb_new`.`areas` AS regions ON `tourdb_prod`.`tbl_regions`.`regNameShort` = regions.`code`
+-- area
+LEFT OUTER JOIN `tourdb_prod`.`tbl_areas` ON `tourdb_prod`.`tbl_waypoints`.`waypAreaFID` = `tourdb_prod`.`tbl_areas`.`areaID`
+LEFT OUTER JOIN `tourdb_new`.`areas` ON `tourdb_prod`.`tbl_areas`.`areaNameShort` = `tourdb_new`.`areas`.`code`
+-- country
+LEFT OUTER JOIN `tourdb_new`.`countries` ON `tourdb_prod`.`tbl_waypoints`.`waypCountry` = `tourdb_new`.`countries`.`code`
+;
 
 -- ---------------
 -- tourdb_new.part
 -- ---------------
-
+INSERT INTO `tourdb_new`.`participants` (
+    `firstName`,
+    `lastName`,
+    `fk_userId`,
+    `crtDate`,
+    `fk_crtUserId`,
+    `updDate`,
+    `fk_updUserId`
+)
+SELECT
+    `prtFirstName`,
+	`prtLastName`,
+	( SELECT `userId` FROM `tourdb_new`.`users` WHERE `login` = 'LEUT' ),
+	`prtCreatedDate`,
+    ( SELECT `userId` FROM `tourdb_new`.`users` WHERE `login` = 'LEUT' ),
+	`prtUpdatedDate`,
+    ( SELECT `userId` FROM `tourdb_new`.`users` WHERE `login` = 'LEUT' )
+FROM `tourdb_prod`.`tbl_part`
+;
 -- -----------------
 -- tourdb_new.tracks
 -- -----------------
+INSERT INTO `tracks` (
+	`name`,
+	`route`,
+	`fk_subtypeId`,
+	`fk_gradeId`,
+	`org`,
+	`event`,
+	`remarks`,
+	`fk_countryId`,
+	`distance`,
+	`meterUp`,
+	`meterDown`,
+	`dateBegin`,
+	`peakTime`,
+	`lowTime`,
+	`dateFinish`,
+	`startEle`,
+	`peakEle`,
+	`lowEle`,
+	`finishEle`,
+	`fk_userId`,
+	`coordinates`,
+	`coordTop`,
+	`coordBottom`,
+	`coordLeft`,
+	`coordRight`,
+	`crtDate`,
+	`fk_crtUserId`,
+	`updDate`,
+	`fk_updUserId`
+)
+SELECT 
+	`trkTrackName`,
+	`trkRoute`,
+	`tourdb_new`.`types`.`typeId`,
+ 	`tourdb_new`.`grades`.`gradeId`,
+	`trkOrg`,
+	`trkEvent`,
+	`trkRemarks`,
+	`tourdb_new`.`countries`.countryId,
+	`trkDistance`,
+	`trkMeterUp`,
+	`trkMeterDown`,
+	`trkDateBegin`,
+	`trkPeakTime`,
+	`trkLowTime`,
+	`trkDateFinish`,
+	`trkStartEle`,
+	`trkPeakEle`,
+	`trkLowEle`,
+	`trkFinishEle`,
+	( SELECT `userId` FROM `tourdb_new`.`users` WHERE `login` = 'LEUT' ),
+	`trkCoordinates`,
+	`trkCoordTop`,
+	`trkCoordBottom`,
+	`trkCoordLeft`,
+	`trkCoordRight`,
+	`trkCreatedDate`,
+    ( SELECT `userId` FROM `tourdb_new`.`users` WHERE `login` = 'LEUT' ),
+	`trkUpdatedDate`,
+    ( SELECT `userId` FROM `tourdb_new`.`users` WHERE `login` = 'LEUT' )
+FROM `tourdb_prod`.`tbl_tracks`
+-- type
+LEFT OUTER JOIN `tourdb_prod`.`tbl_types` ON `tourdb_prod`.`tbl_tracks`.`trkSubtypeFid` = `tourdb_prod`.`tbl_types`.`typId`
+LEFT OUTER JOIN `tourdb_new`.`types` ON `tourdb_prod`.`tbl_types`.`typCode` = `tourdb_new`.`types`.`code` 
+AND `tourdb_new`.`types`.`fk_parentId` IS NOT NULL 
+
+-- grade
+LEFT OUTER JOIN `tourdb_prod`.`tbl_grades` ON `tourdb_prod`.`tbl_tracks`.`trkGrade` = `tourdb_prod`.`tbl_grades`.`grdCodeID`
+LEFT OUTER JOIN `tourdb_new`.`grades` ON `tourdb_prod`.`tbl_grades`.`grdCodeID` = `tourdb_new`.`grades`.`code`
+-- country
+LEFT OUTER JOIN `tourdb_new`.`countries` ON `tourdb_prod`.`tbl_tracks`.`trkCountry` = `tourdb_new`.`countries`.`code`;
 
 -- ---------------------
 -- tourdb_new.track_part

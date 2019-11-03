@@ -59,10 +59,10 @@ CREATE TABLE IF NOT EXISTS `users` (
 -- --------------------
 CREATE TABLE IF NOT EXISTS `countries` (
     `countryId` int(11) NOT NULL AUTO_INCREMENT,
-    `ISOcode` VARCHAR(2) NOT NULL,  
+    `code` VARCHAR(2) NOT NULL,  
     `name` varchar(255) DEFAULT NULL,
     PRIMARY KEY (`countryId`),
-    CONSTRAINT `ISOcode_UNIQUE` UNIQUE (`ISOcode`)
+    CONSTRAINT `code_UNIQUE` UNIQUE (`code`)
 ) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=utf8;
 
 -- ------------------
@@ -126,15 +126,16 @@ CREATE TABLE IF NOT EXISTS `waypoints` (
     `waypointId` int(11) NOT NULL AUTO_INCREMENT,
     `name` varchar(255) DEFAULT NULL,
     `fk_typeId` int(11) NOT NULL,
+    `fk_regionId` int(11) DEFAULT NULL,
     `fk_areaId` int(11) DEFAULT NULL,
-    `fk_cantonId` int(11) DEFAULT NULL,
+    `canton` varchar(10) DEFAULT NULL,
     `fk_countryId` int(11) DEFAULT NULL,
     `altitude` int(11) NOT NULL DEFAULT 0,
     `owner` varchar(50) DEFAULT NULL,
     `website` varchar(255) DEFAULT NULL,
     `remarks` varchar(1024) DEFAULT NULL,
-    `UIAA4000` tinyint(1) DEFAULT NULL,
-    `fk_toOfCantonId` int(11) NOT NULL,
+    `UIAA4000` tinyint(1) DEFAULT 0,
+    `topOfCanton` varchar(2) DEFAULT NULL,
     `coordLV3Est` int(11) DEFAULT NULL,
     `coordLV3Nord` int(11) DEFAULT NULL,
     `coordWGS84E` double DEFAULT NULL,
@@ -147,12 +148,12 @@ CREATE TABLE IF NOT EXISTS `waypoints` (
     CONSTRAINT `wayp_ifk_typeId`
         FOREIGN KEY (`fk_typeId`)
         REFERENCES `types` (`typeId`),
+    CONSTRAINT `wayp_ifk_regionId`
+        FOREIGN KEY (`fk_regionId`)
+        REFERENCES `areas` (`areaId`),
     CONSTRAINT `wayp_ifk_areaId`
         FOREIGN KEY (`fk_areaId`)
         REFERENCES `areas` (`areaId`),
-    CONSTRAINT `wayp_ifk_cantonId`
-        FOREIGN KEY (`fk_cantonId`)
-        REFERENCES `cantons` (`cantonId`),
     CONSTRAINT `wayp_ifk_countryId`
         FOREIGN KEY (`fk_countryId`)
         REFERENCES `countries` (`countryId`),
