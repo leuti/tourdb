@@ -144,6 +144,7 @@ CREATE TABLE IF NOT EXISTS `waypoints` (
     `fk_crtUserId` int(11) NOT NULL,
     `updDate` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
     `fk_updUserId` int(11) NOT NULL,
+    `origWaypId` int(11) NOT NULL COMMENT 'Required for migation - to be deleted',
     PRIMARY KEY (`waypointId`),
     CONSTRAINT `wayp_ifk_typeId`
         FOREIGN KEY (`fk_typeId`)
@@ -169,7 +170,7 @@ CREATE TABLE IF NOT EXISTS `waypoints` (
 -- tourdb_new.part
 -- ---------------
 CREATE TABLE IF NOT EXISTS `participants` (
-    `partId` int(11) NOT NULL AUTO_INCREMENT,
+    `participantId` int(11) NOT NULL AUTO_INCREMENT,
     `firstName` varchar(30) DEFAULT NULL,
     `lastName` varchar(30) DEFAULT NULL,
     `fk_userId` int(11) NOT NULL ,
@@ -177,7 +178,8 @@ CREATE TABLE IF NOT EXISTS `participants` (
     `fk_crtUserId` int(11) NOT NULL,
     `updDate` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
     `fk_updUserId` int(11) NOT NULL,
-    PRIMARY KEY (`partId`),
+    `origPartId` int(11) NOT NULL COMMENT 'Required for migation - to be deleted',
+    PRIMARY KEY (`participantId`),
     CONSTRAINT `part_ifk_userId`
         FOREIGN KEY (`fk_userId`)
         REFERENCES `users` (`userId`),
@@ -224,6 +226,7 @@ CREATE TABLE IF NOT EXISTS `tracks` (
     `fk_crtUserId` int(11) NOT NULL,
     `updDate` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
     `fk_updUserId` int(11) NOT NULL,
+    `origTrkId` int(11) NOT NULL COMMENT 'Required for migation - to be deleted',
     PRIMARY KEY (`trackId`),
     CONSTRAINT `trk_ifk_subtypeId`
         FOREIGN KEY (`fk_subtypeId`)
@@ -265,7 +268,7 @@ CREATE TABLE IF NOT EXISTS `track_part` (
         REFERENCES `tracks` (`trackId`),
     CONSTRAINT `trkpart_ifk_partId`
         FOREIGN KEY (`fk_partId`)
-        REFERENCES `participants` (`partId`),
+        REFERENCES `participants` (`participantId`),
     CONSTRAINT `trkpart_ifk_crtUserId`
         FOREIGN KEY (`fk_crtUserId`)
         REFERENCES `users` (`userId`),
