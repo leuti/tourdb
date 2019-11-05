@@ -373,7 +373,7 @@ FROM `tourdb2_prod`.`tbl_regions`;
 -- tourdb_new.areas (load areas)
 -- -----------------------------
 INSERT INTO `tourdb_new`.`areas` (
-    `fk_parentId`,
+    `fk_regionId`,
     `code`,
     `name`
 )
@@ -386,7 +386,7 @@ JOIN `tourdb2_prod`.`tbl_regions` ON `tourdb2_prod`.`tbl_areas`.`areaRegionFID` 
 JOIN `tourdb_new`.`areas` ON `tourdb2_prod`.`tbl_regions`.`regNameShort` = `tourdb_new`.`areas`.`code`;
 
 -- --------------------------------------------------
--- tourdb_new.types (load types - fk_parentId = NULL)
+-- tourdb_new.types (load types - fk_regionId = NULL)
 -- --------------------------------------------------
 INSERT INTO `tourdb_new`.`types` (
     `code`,
@@ -396,15 +396,13 @@ INSERT INTO `tourdb_new`.`types` (
 SELECT 
  	`tourdb2_prod`.`tbl_types`.`typCode`,
 	`tourdb2_prod`.`tbl_types`.`typName`,
-	`tourdb2_prod`.`tbl_types`.`typPurpose`
+	CAST(`tourdb2_prod`.`tbl_types`.`typPurpose` AS CHAR)
 FROM `tourdb2_prod`.`tbl_types`
 WHERE `tourdb2_prod`.`tbl_types`.`typParentId` IS NULL;
 
 -- ---------------------------------------------------
--- tourdb_new.types (load types - fk_parentId <> NULL)
+-- tourdb_new.types (load types - fk_regionId <> NULL)
 -- ---------------------------------------------------
--- TASKS:
--- - remove COLATE FROM TABLE (added because join did not work otherwise)
 INSERT INTO `types` (
     `code`,
     `name`,
@@ -496,9 +494,7 @@ LEFT OUTER JOIN `tourdb_new`.`areas` AS regions ON `tourdb2_prod`.`tbl_regions`.
 LEFT OUTER JOIN `tourdb2_prod`.`tbl_areas` ON `tourdb2_prod`.`tbl_waypoints`.`waypAreaFID` = `tourdb2_prod`.`tbl_areas`.`areaID`
 LEFT OUTER JOIN `tourdb_new`.`areas` ON `tourdb2_prod`.`tbl_areas`.`areaNameShort` = `tourdb_new`.`areas`.`code`
 -- country
-LEFT OUTER JOIN `tourdb_new`.`countries` ON `tourdb2_prod`.`tbl_waypoints`.`waypCountry` = `tourdb_new`.`countries`.`code`
-;
-
+LEFT OUTER JOIN `tourdb_new`.`countries` ON `tourdb2_prod`.`tbl_waypoints`.`waypCountry` = `tourdb_new`.`countries`.`code`;
 -- ---------------
 -- tourdb_new.part
 -- ---------------

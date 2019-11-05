@@ -80,12 +80,12 @@ CREATE TABLE IF NOT EXISTS `cantons` (
 -- ----------------
 CREATE TABLE IF NOT EXISTS `areas` (
     `areaId` int(11) NOT NULL AUTO_INCREMENT,
-    `fk_parentId` int(11) DEFAULT NULL,
+    `fk_regionId` int(11) DEFAULT NULL,
     `code` varchar(10) NOT NULL,
     `name` varchar(255) DEFAULT NULL,
     PRIMARY KEY (`areaId`),
-    CONSTRAINT `area_ifk_parentId`
-        FOREIGN KEY (`fk_parentId`)
+    CONSTRAINT `area_ifk_regionId`
+        FOREIGN KEY (`fk_regionId`)
         REFERENCES `areas` (`areaId`)
 ) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=utf8;
 
@@ -94,7 +94,7 @@ CREATE TABLE IF NOT EXISTS `areas` (
 -- ----------------
 CREATE TABLE IF NOT EXISTS `types` (
     `typeId` int(11) NOT NULL AUTO_INCREMENT COMMENT 'Unique Primary Id',
-    `code` varchar(10) NOT NULL COLLATE 'utf32_general_ci' COMMENT 'Code of Type (e.g. SST)',
+    `code` varchar(10) NOT NULL COMMENT 'Code of Type (e.g. SST)',
     `name` varchar(50) NOT NULL,
     `fk_parentId` int(11) DEFAULT NULL COMMENT 'Points to partent type if subtype',
     `usage` varchar(10) NOT NULL COMMENT 'Tracks, Waypoints, Segments',
@@ -107,16 +107,18 @@ CREATE TABLE IF NOT EXISTS `types` (
 -- -----------------
 -- tourdb_new.grades
 -- -----------------
+-- TASKS:
+-- - Add types to grade table and re-activate constraint
 CREATE TABLE IF NOT EXISTS `grades` (
     `gradeId` int(11) NOT NULL AUTO_INCREMENT,
     `code` varchar(10) NOT NULL,
     `group` varchar(10) DEFAULT NULL,
     `fk_typeId` int(11) DEFAULT NULL,
     `sort` int(11) DEFAULT NULL,
-    PRIMARY KEY (`gradeId`),
-    CONSTRAINT `grades_ifk_typeId`
-        FOREIGN KEY (`fk_typeId`)
-        REFERENCES `types` (`typeId`)
+    PRIMARY KEY (`gradeId`)
+    -- CONSTRAINT `grades_ifk_typeId`
+    --     FOREIGN KEY (`fk_typeId`)
+    --     REFERENCES `types` (`typeId`)
 ) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=utf8;
 
 -- --------------------
@@ -126,8 +128,8 @@ CREATE TABLE IF NOT EXISTS `waypoints` (
     `waypointId` int(11) NOT NULL AUTO_INCREMENT,
     `name` varchar(255) DEFAULT NULL,
     `fk_typeId` int(11) NOT NULL,
-    `fk_regionId` int(11) DEFAULT NULL,
     `fk_areaId` int(11) DEFAULT NULL,
+    `fk_regionId` int(11) DEFAULT NULL,
     `canton` varchar(10) DEFAULT NULL,
     `fk_countryId` int(11) DEFAULT NULL,
     `altitude` int(11) NOT NULL DEFAULT 0,
