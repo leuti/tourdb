@@ -292,6 +292,87 @@ ORDER BY origtrkid, trackname, waypointname, source
 -- -------------------
 -- tourdb_new.segments
 -- -------------------
+SELECT 
+	'old' AS `source`,
+	`segName`,
+	`segRouteName`,
+	`tourdb2_prod`.`tbl_types`.`typCode`,
+	`segCountry`,
+	`segCanton`,
+	`tourdb2_prod`.`tbl_areas`.`areaNameShort`,
+	`segGradeFID`,
+	`segClimbGradeFID`,
+	`segFirn`,
+	`segEhaft`,
+	`segExpo`,
+	`segRockShare`,
+	`segTStartTarget`, `segTTargetEnd`,
+	`segMUStartTarget`,	`segMDStartTarget`,	`segMUTargetEnd`, `segMDTargetEnd`,
+	`startLoc`.`waypNameShort`, `targetLoc`.`waypNameShort`, `finishLoc`.`waypNameShort`,
+	`segRemarks`,
+	`segSourceFID`, `segSourceRef`,
+	`segCoordinates`, `segCoordTop`, `segCoordBottom`, `segCoordLeft`, `segCoordRight`,
+	`segId`
+FROM `tourdb2_prod`.`tbl_segments`
+-- types
+LEFT OUTER JOIN tourdb2_prod.tbl_types ON tourdb2_prod.tbl_segments.segTypeFid = tourdb2_prod.tbl_types.typId 
+-- areas
+LEFT OUTER JOIN tourdb2_prod.tbl_areas ON tourdb2_prod.tbl_segments.segAreaFID = tourdb2_prod.tbl_areas.areaID
+-- Start Location 
+LEFT OUTER JOIN tourdb2_prod.tbl_waypoints startLoc ON tourdb2_prod.tbl_segments.segStartLocationFID = startLoc.waypID
+-- Target Location 
+LEFT OUTER JOIN tourdb2_prod.tbl_waypoints targetLoc ON tourdb2_prod.tbl_segments.segTargetLocationFID = targetLoc.waypID
+-- Finish Location 
+LEFT OUTER JOIN tourdb2_prod.tbl_waypoints finishLoc ON tourdb2_prod.tbl_segments.segFinishLocationFID = finishLoc.waypID
+
+UNION ALL SELECT
+	'new' AS `source`,
+	`segName`,
+	`routeName`,
+	`tourdb_new`.`types`.`code`,
+	`tourdb_new`.`countries`.`code`,
+	`tourdb_new`.`cantons`.`code`,
+	`tourdb_new`.`areas`.`code`,
+	`tourdb_new`.`grades`.`code` AS 'grade',
+	`clGrades`.`code` AS 'clGrade',
+	`firn`,
+	`ehaft`.`code` AS 'ehaft',
+	`expo`,
+	`rockShare`,
+	`startTargetTime`,`targetEndTime`,
+	`MUStartTarget`, `MDStartTarget`, `MUTargetEnd`, `MDTargetEnd`,
+	`startLoc`.`name` AS 'startLoc', 
+	
+	`targetLoc`.`name` AS 'targetLoc', 
+	`finishLoc`.`name` AS 'finishLoc',
+	`tourdb_new`.`segments`.`remarks`,
+	`fk_sourceId`, `sourceRef`,
+	`coordinates`, `coordTop`, `coordBottom`, `coordLeft`, `coordRight`,
+	`origSegId`
+FROM `tourdb_new`.`segments`
+-- types
+LEFT OUTER JOIN tourdb_new.types ON tourdb_new.segments.fk_typeId = tourdb_new.types.typeId
+-- country
+LEFT OUTER  JOIN tourdb_new.countries ON tourdb_new.segments.fk_countryId = tourdb_new.countries.countryId
+-- canton
+LEFT OUTER  JOIN tourdb_new.cantons ON tourdb_new.segments.fk_cantonId = tourdb_new.cantons.cantonId
+-- areas
+LEFT OUTER  JOIN tourdb_new.areas ON tourdb_new.segments.fk_areaId = tourdb_new.areas.areaId
+-- grade
+LEFT OUTER  JOIN tourdb_new.grades ON tourdb_new.segments.fk_gradeId = tourdb_new.grades.gradeId
+-- climbing grade
+LEFT OUTER  JOIN tourdb_new.grades clGrades ON tourdb_new.segments.fk_climbGradeId = clGrades.gradeId
+-- Ernsthaftigkeit
+LEFT OUTER  JOIN tourdb_new.types ehaft ON tourdb_new.segments.fk_ehaftId = ehaft.typeId
+-- Start loaction 
+LEFT OUTER  JOIN tourdb_new.waypoints startLoc ON tourdb_new.segments.fk_startLocId = startLoc.waypointId
+-- Target loaction 
+LEFT OUTER  JOIN tourdb_new.waypoints targetLoc ON tourdb_new.segments.fk_targetLocId = targetLoc.waypointId
+-- Finish loaction 
+LEFT OUTER  JOIN tourdb_new.waypoints finishLoc ON tourdb_new.segments.fk_finishLocId = finishLoc.waypointId
+-- Source
+LEFT OUTER  JOIN tourdb_new.sources ON tourdb_new.segments.fk_sourceId = tourdb_new.sources.code
+ORDER BY segName, source;
 
 -- ------------------
 -- tourdb_new.sources
