@@ -2,6 +2,8 @@
 -- == Check migration ==
 -- =====================
 
+-- TASKS
+-- - ensure that all attributes are included in the group by clause
 
 -- ---------------------------------
 -- Migrate data for table kmlstyles'
@@ -14,8 +16,6 @@
 -- ----------------
 -- tourdb_new.areas
 -- ----------------
-
--- Display all data
 SELECT 
 	"old" AS source,
 	tourdb2_prod.tbl_regions.regNameShort AS `region`,
@@ -169,14 +169,126 @@ ORDER BY origPartId, source
 -- tourdb_new.tracks
 -- -----------------
 
+SELECT 
+	'old' AS 'source',
+	`trkId` AS 'origTrkId',
+	`trkTrackName` AS 'name',
+	`trkRoute` AS 'route',
+	`tbl_types`.`typCode` AS 'type',
+	`subtypes`.`typCode` AS 'subtype',
+   IF(`trkGrade` = '', NULL, `trkGrade`)  AS 'grade',
+	`trkOrg` AS 'org',
+	`trkEvent` AS 'event',
+	`trkRemarks` AS 'remarks',
+    `trkCountry` AS 'country',
+	`trkDistance` AS 'distance',
+	`trkMeterUp` AS 'meterup',
+	`trkMeterDown` AS 'meterdown',
+	`trkDateBegin` AS 'datebegin',
+	`trkPeakTime` AS 'peaktime',
+	`trkLowTime` AS 'lowtime',
+	`trkDateFinish` AS 'datefinish',
+	`trkStartEle` AS 'startele',
+	`trkPeakEle` AS 'peakele',
+	`trkLowEle` AS 'lowele',
+	`trkFinishEle` AS 'finishele',
+	`trkCoordinates` AS 'coord',
+	`trkCoordTop` AS 'coordtop',
+	`trkCoordBottom` AS 'coordbottom',
+	`trkCoordLeft` AS 'coordleft', 
+	`trkCoordRight` AS 'coordright'
+FROM tourdb2_prod.tbl_tracks
+-- types
+LEFT OUTER JOIN tourdb2_prod.tbl_types ON tbl_tracks.trkTypeFid = tbl_types.typId
+-- subtypes
+LEFT OUTER	JOIN tourdb2_prod.tbl_types subtypes ON tbl_tracks.trkSubtypeFid = subtypes.typId
+
+UNION ALL SELECT
+	'new' AS 'source',
+	`tourdb_new`.`tracks`.`origTrkId` AS 'origTrkId',
+	`tourdb_new`.`tracks`.`name` AS 'name',
+	`tourdb_new`.`tracks`.`route` AS 'route',
+    `ptype`.`code` AS 'subtype',
+	`stype`.`code` AS 'type',
+	`grades`.`code` AS 'grade',
+	`tourdb_new`.`tracks`.`org` AS 'org',
+	`tourdb_new`.`tracks`.`event` AS 'event',
+	`tourdb_new`.`tracks`.`remarks` AS 'remarks',
+	`countries`.`code` AS 'country',
+	`tourdb_new`.`tracks`.`distance` AS 'distance',
+	`tourdb_new`.`tracks`.`meterUp`  AS 'meterup',
+	`tourdb_new`.`tracks`.`meterDown` AS 'meterdown',
+	`tourdb_new`.`tracks`.`dateBegin` AS 'datebegin',
+	`tourdb_new`.`tracks`.`peakTime` AS 'peaktime',
+	`tourdb_new`.`tracks`.`lowTime` AS 'lowtime',
+	`tourdb_new`.`tracks`.`dateFinish` AS 'datefinish',
+	`tourdb_new`.`tracks`.`startEle` AS 'startele',
+	`tourdb_new`.`tracks`.`peakEle` AS 'peakele',
+	`tourdb_new`.`tracks`.`lowEle` AS 'lowele',
+	`tourdb_new`.`tracks`.`finishEle` AS 'finishele',
+	`tourdb_new`.`tracks`.`coordinates` AS 'coord',
+	`tourdb_new`.`tracks`.`coordTop` AS 'coordtop',
+	`tourdb_new`.`tracks`.`coordBottom` AS 'coordbottom',
+	`tourdb_new`.`tracks`.`coordLeft` AS 'coordleft',
+	`tourdb_new`.`tracks`.`coordRight` AS 'coordright'
+FROM tourdb_new.tracks
+-- subtype
+LEFT OUTER JOIN tourdb_new.types stype ON tourdb_new.tracks.fk_subtypeId = stype.typeId
+-- type
+LEFT OUTER JOIN tourdb_new.types ptype ON stype.fk_parentId = ptype.typeId
+-- grade
+LEFT OUTER JOIN tourdb_new.grades ON tourdb_new.tracks.fk_gradeId = grades.gradeId
+-- country
+LEFT OUTER JOIN tourdb_new.countries ON tourdb_new.tracks.fk_countryId = countries.countryId
+
+ORDER BY origTrkId, source;		
+
 -- ---------------------
 -- tourdb_new.track_part
 -- ---------------------
 
+SELECT 
+	'old' AS 'source',
+	tbl_tracks.trkId AS 'origtrkid',
+	tourdb2_prod.tbl_tracks.trkTrackName AS 'name',
+	tourdb2_prod.tbl_part.prtFirstName AS 'firstname',
+	tourdb2_prod.tbl_part.prtLastName AS 'lastname' 
+FROM tourdb2_prod.tbl_track_part
+JOIN tourdb2_prod.tbl_tracks ON tourdb2_prod.tbl_track_part.trpaTrkId = tourdb2_prod.tbl_tracks.trkId
+JOIN tourdb2_prod.tbl_part ON tourdb2_prod.tbl_part.prtId = tourdb2_prod.tbl_track_part.trpaPartId
+
+UNION SELECT 
+	'new' AS 'source',
+	tracks.origTrkId AS 'origtrkid',
+	tracks.name AS 'name',
+	participants.firstName AS 'firstname',
+	participants.lastName AS 'lastname' 
+FROM tourdb_new.track_part 
+JOIN tourdb_new.tracks ON tourdb_new.tracks.trackId = track_part.fk_trackId
+JOIN tourdb_new.participants ON tourdb_new.participants.participantId = track_part.fk_partId
+ORDER BY origtrkid, firstname, lastname, source ;
+
 -- ---------------------
 -- tourdb_new.track_wayp
 -- ---------------------
+SELECT 
+	'old' AS 'source',
+	tbl_tracks.trkId AS 'origtrkid',
+	tourdb2_prod.tbl_tracks.trkTrackName AS 'trackname',
+	tourdb2_prod.tbl_waypoints.waypNameLong AS 'waypointname'
+FROM tourdb2_prod.tbl_track_wayp
+JOIN tourdb2_prod.tbl_tracks ON tourdb2_prod.tbl_track_wayp.trwpTrkId = tourdb2_prod.tbl_tracks.trkId
+JOIN tourdb2_prod.tbl_waypoints ON tourdb2_prod.tbl_waypoints.waypId = tourdb2_prod.tbl_track_wayp.trwpWaypId
 
+UNION ALL SELECT 
+	'new' AS 'source',
+	tracks.origTrkId AS 'origtrkid',
+	tracks.name AS 'trackname',
+	waypoints.name AS 'waypointname'
+FROM tourdb_new.track_wayp 
+JOIN tourdb_new.tracks ON tourdb_new.tracks.trackId = track_wayp.fk_trackId
+JOIN tourdb_new.waypoints ON tourdb_new.waypoints.waypointId = track_wayp.fk_waypId
+ORDER BY origtrkid, trackname, waypointname, source
 -- -------------------
 -- tourdb_new.segments
 -- -------------------

@@ -13,6 +13,7 @@
 
 
 -- Database structure for new tourdb
+CREATE DATABASE IF NOT EXISTS `tourdb_new` DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci;
 USE `tourdb_new`;
 
 -- ---------------------------------
@@ -41,9 +42,8 @@ FROM `tourdb2_prod`.`tbl_kmlstyle`;
 -- ----------------------------
 -- Migrate data for table users
 -- ----------------------------
--- ToDo:
+-- TASK:
 -- - Change email to unique value
-
 INSERT INTO `tourdb_new`.`users` (
     `login`,
     `firstName`,
@@ -427,13 +427,121 @@ WHERE `stype`.`typParentId` IS NOT NULL;
 INSERT INTO `tourdb_new`.`grades` (
     `code`,
     `group`,
+    `level`,
+    `uiiaEq`,
+    `fk_typeId`,
     `sort`
-)
-SELECT 
-    `tourdb2_prod`.`tbl_grades`.`grdCodeID`,
-    `tourdb2_prod`.`tbl_grades`.`grdGroup`,
-    `tourdb2_prod`.`tbl_grades`.`grdSort`
-FROM `tourdb2_prod`.`tbl_grades`;
+) VALUES
+    ('1', '1', 'I', 'I', (SELECT tourdb_new.types.typeId FROM tourdb_new.types WHERE tourdb_new.types.code = 'fr_grd' ), 10),
+    ('2a', '2', 'II', 'II', (SELECT tourdb_new.types.typeId FROM tourdb_new.types WHERE tourdb_new.types.code = 'fr_grd' ), 20),
+    ('2b', '2', 'II', 'II', (SELECT tourdb_new.types.typeId FROM tourdb_new.types WHERE tourdb_new.types.code = 'fr_grd' ), 24),
+    ('2c', '2', 'II', 'II', (SELECT tourdb_new.types.typeId FROM tourdb_new.types WHERE tourdb_new.types.code = 'fr_grd' ), 26),
+    ('3a', '3', 'III', 'III', (SELECT tourdb_new.types.typeId FROM tourdb_new.types WHERE tourdb_new.types.code = 'fr_grd' ), 30),
+    ('3b', '3', 'III', 'III', (SELECT tourdb_new.types.typeId FROM tourdb_new.types WHERE tourdb_new.types.code = 'fr_grd' ), 34),
+    ('3c', '3', 'III', 'III', (SELECT tourdb_new.types.typeId FROM tourdb_new.types WHERE tourdb_new.types.code = 'fr_grd' ), 36),
+    ('4a', '4', 'IV', 'IV', (SELECT tourdb_new.types.typeId FROM tourdb_new.types WHERE tourdb_new.types.code = 'fr_grd' ), 40),
+    ('4b', '4', 'IV', 'IV', (SELECT tourdb_new.types.typeId FROM tourdb_new.types WHERE tourdb_new.types.code = 'fr_grd' ), 44),
+    ('4c', '4', 'IV', 'IV', (SELECT tourdb_new.types.typeId FROM tourdb_new.types WHERE tourdb_new.types.code = 'fr_grd' ), 46),
+    ('5a', '5', 'V', 'V', (SELECT tourdb_new.types.typeId FROM tourdb_new.types WHERE tourdb_new.types.code = 'fr_grd' ), 50),
+    ('5b', '5', 'V', 'V', (SELECT tourdb_new.types.typeId FROM tourdb_new.types WHERE tourdb_new.types.code = 'fr_grd' ), 54),
+    ('5c', '5', 'VI', 'V', (SELECT tourdb_new.types.typeId FROM tourdb_new.types WHERE tourdb_new.types.code = 'fr_grd' ), 56),
+    ('6a', '6', 'VI', 'V', (SELECT tourdb_new.types.typeId FROM tourdb_new.types WHERE tourdb_new.types.code = 'fr_grd' ), 60),
+    ('6a+', '6', 'VII', 'V', (SELECT tourdb_new.types.typeId FROM tourdb_new.types WHERE tourdb_new.types.code = 'fr_grd' ), 62),
+    ('6b', '6', 'VII', 'V', (SELECT tourdb_new.types.typeId FROM tourdb_new.types WHERE tourdb_new.types.code = 'fr_grd' ), 64),
+    ('6b+', '6', 'VII', 'V', (SELECT tourdb_new.types.typeId FROM tourdb_new.types WHERE tourdb_new.types.code = 'fr_grd' ), 65),
+    ('6c', '6', 'VIII', 'V', (SELECT tourdb_new.types.typeId FROM tourdb_new.types WHERE tourdb_new.types.code = 'fr_grd' ), 66),
+    ('6c+', '6', 'VIII', 'V', (SELECT tourdb_new.types.typeId FROM tourdb_new.types WHERE tourdb_new.types.code = 'fr_grd' ), 68),
+    ('7a', '7', 'VIII', 'V', (SELECT tourdb_new.types.typeId FROM tourdb_new.types WHERE tourdb_new.types.code = 'fr_grd' ), 70),
+    ('7a+', '7', 'VIII', 'V', (SELECT tourdb_new.types.typeId FROM tourdb_new.types WHERE tourdb_new.types.code = 'fr_grd' ), 72),
+    ('7b', '7', 'IX', 'V', (SELECT tourdb_new.types.typeId FROM tourdb_new.types WHERE tourdb_new.types.code = 'fr_grd' ), 74),
+    ('7b+', '7', 'IX', 'V', (SELECT tourdb_new.types.typeId FROM tourdb_new.types WHERE tourdb_new.types.code = 'fr_grd' ), 75),
+    ('7c', '7', 'IX', 'V', (SELECT tourdb_new.types.typeId FROM tourdb_new.types WHERE tourdb_new.types.code = 'fr_grd' ), 76),
+    ('7c+', '7', 'IX', 'V', (SELECT tourdb_new.types.typeId FROM tourdb_new.types WHERE tourdb_new.types.code = 'fr_grd' ), 78),
+    ('8a', '8', 'IX', 'V', (SELECT tourdb_new.types.typeId FROM tourdb_new.types WHERE tourdb_new.types.code = 'fr_grd' ), 80),
+    ('8a+', '8', 'X', 'V', (SELECT tourdb_new.types.typeId FROM tourdb_new.types WHERE tourdb_new.types.code = 'fr_grd' ), 82),
+    ('8b', '8', 'X', 'V', (SELECT tourdb_new.types.typeId FROM tourdb_new.types WHERE tourdb_new.types.code = 'fr_grd' ), 84),
+    ('8b+', '8', 'X', 'V', (SELECT tourdb_new.types.typeId FROM tourdb_new.types WHERE tourdb_new.types.code = 'fr_grd' ), 85),
+    ('8c', '8', 'XI', 'V', (SELECT tourdb_new.types.typeId FROM tourdb_new.types WHERE tourdb_new.types.code = 'fr_grd' ), 86),
+    ('8c+', '8', 'XI', 'V', (SELECT tourdb_new.types.typeId FROM tourdb_new.types WHERE tourdb_new.types.code = 'fr_grd' ), 88),
+    ('9a', '9', 'XI', 'V', (SELECT tourdb_new.types.typeId FROM tourdb_new.types WHERE tourdb_new.types.code = 'fr_grd' ), 90),
+    ('9a+', '9', 'XI', 'V', (SELECT tourdb_new.types.typeId FROM tourdb_new.types WHERE tourdb_new.types.code = 'fr_grd' ), 92),
+    ('9b', '9', 'XII', 'V', (SELECT tourdb_new.types.typeId FROM tourdb_new.types WHERE tourdb_new.types.code = 'fr_grd' ), 94),
+    ('9b+', '9', 'XII', 'V', (SELECT tourdb_new.types.typeId FROM tourdb_new.types WHERE tourdb_new.types.code = 'fr_grd' ), 95),
+    ('9c', '9', 'XII', 'V', (SELECT tourdb_new.types.typeId FROM tourdb_new.types WHERE tourdb_new.types.code = 'fr_grd' ), 96),
+    ('I', 'I', 'I', 'I', (SELECT tourdb_new.types.typeId FROM tourdb_new.types WHERE tourdb_new.types.code = 'uiia_grd' ), 10),
+    ('II', 'II', 'II', 'II', (SELECT tourdb_new.types.typeId FROM tourdb_new.types WHERE tourdb_new.types.code = 'uiia_grd' ), 20),
+    ('III', 'III', 'III', 'II', (SELECT tourdb_new.types.typeId FROM tourdb_new.types WHERE tourdb_new.types.code = 'uiia_grd' ), 30),
+    ('IV', 'IV', 'IV', 'II', (SELECT tourdb_new.types.typeId FROM tourdb_new.types WHERE tourdb_new.types.code = 'uiia_grd' ), 40),
+    ('V', 'V', 'V', 'III', (SELECT tourdb_new.types.typeId FROM tourdb_new.types WHERE tourdb_new.types.code = 'uiia_grd' ), 50),
+    ('V−', 'V', 'V', 'III', (SELECT tourdb_new.types.typeId FROM tourdb_new.types WHERE tourdb_new.types.code = 'uiia_grd' ), 54),
+    ('V+', 'V', 'V', 'III', (SELECT tourdb_new.types.typeId FROM tourdb_new.types WHERE tourdb_new.types.code = 'uiia_grd' ), 56),
+    ('VI', 'VI', 'VI', 'IV', (SELECT tourdb_new.types.typeId FROM tourdb_new.types WHERE tourdb_new.types.code = 'uiia_grd' ), 60),
+    ('VI−', 'VI', 'VI', 'IV', (SELECT tourdb_new.types.typeId FROM tourdb_new.types WHERE tourdb_new.types.code = 'uiia_grd' ), 64),
+    ('VI+', 'VI', 'VI', 'IV', (SELECT tourdb_new.types.typeId FROM tourdb_new.types WHERE tourdb_new.types.code = 'uiia_grd' ), 66),
+    ('VII', 'VII', 'VII', 'V', (SELECT tourdb_new.types.typeId FROM tourdb_new.types WHERE tourdb_new.types.code = 'uiia_grd' ), 70),
+    ('VII−', 'VII', 'VII', 'V', (SELECT tourdb_new.types.typeId FROM tourdb_new.types WHERE tourdb_new.types.code = 'uiia_grd' ), 74),
+    ('VII+', 'VII', 'VII', 'V', (SELECT tourdb_new.types.typeId FROM tourdb_new.types WHERE tourdb_new.types.code = 'uiia_grd' ), 76),
+    ('VIII', 'VIII', 'VIII', 'V', (SELECT tourdb_new.types.typeId FROM tourdb_new.types WHERE tourdb_new.types.code = 'uiia_grd' ), 80),
+    ('VIII−', 'VIII', 'VIII', 'V', (SELECT tourdb_new.types.typeId FROM tourdb_new.types WHERE tourdb_new.types.code = 'uiia_grd' ), 84),
+    ('VIII+', 'VIII', 'VIII', 'V', (SELECT tourdb_new.types.typeId FROM tourdb_new.types WHERE tourdb_new.types.code = 'uiia_grd' ), 86),
+    ('IX−', 'IX', 'IX', 'V', (SELECT tourdb_new.types.typeId FROM tourdb_new.types WHERE tourdb_new.types.code = 'uiia_grd' ), 90),
+    ('IX', 'IX', 'IX', 'V', (SELECT tourdb_new.types.typeId FROM tourdb_new.types WHERE tourdb_new.types.code = 'uiia_grd' ), 94),
+    ('IX+', 'IX', 'IX', 'V', (SELECT tourdb_new.types.typeId FROM tourdb_new.types WHERE tourdb_new.types.code = 'uiia_grd' ), 96),
+    ('X-', 'X', 'X', 'V', (SELECT tourdb_new.types.typeId FROM tourdb_new.types WHERE tourdb_new.types.code = 'uiia_grd' ), 100),
+    ('X', 'X', 'X', 'V', (SELECT tourdb_new.types.typeId FROM tourdb_new.types WHERE tourdb_new.types.code = 'uiia_grd' ), 104),
+    ('X+', 'X', 'X', 'V', (SELECT tourdb_new.types.typeId FROM tourdb_new.types WHERE tourdb_new.types.code = 'uiia_grd' ), 106),
+    ('XI-', 'XI', 'XI', 'V', (SELECT tourdb_new.types.typeId FROM tourdb_new.types WHERE tourdb_new.types.code = 'uiia_grd' ), 110),
+    ('XI', 'XI', 'XI', 'V', (SELECT tourdb_new.types.typeId FROM tourdb_new.types WHERE tourdb_new.types.code = 'uiia_grd' ), 114),
+    ('XI+', 'XI', 'XI', 'V', (SELECT tourdb_new.types.typeId FROM tourdb_new.types WHERE tourdb_new.types.code = 'uiia_grd' ), 116),
+    ('XII-', 'XII', 'XII', 'V', (SELECT tourdb_new.types.typeId FROM tourdb_new.types WHERE tourdb_new.types.code = 'uiia_grd' ), 120),
+    ('XII', 'XII', 'XII', 'V', (SELECT tourdb_new.types.typeId FROM tourdb_new.types WHERE tourdb_new.types.code = 'uiia_grd' ), 124),
+    ('XII+', 'XII', 'XII', 'V', (SELECT tourdb_new.types.typeId FROM tourdb_new.types WHERE tourdb_new.types.code = 'uiia_grd' ), 126),
+    ('E1', 'E1', 'E1', 'I', (SELECT tourdb_new.types.typeId FROM tourdb_new.types WHERE tourdb_new.types.code = 'ehaft' ), 10),
+    ('E2', 'E2', 'E2', 'II', (SELECT tourdb_new.types.typeId FROM tourdb_new.types WHERE tourdb_new.types.code = 'ehaft' ), 20),
+    ('E3', 'E3', 'E3', 'III', (SELECT tourdb_new.types.typeId FROM tourdb_new.types WHERE tourdb_new.types.code = 'ehaft' ), 30),
+    ('E4', 'E4', 'E4', 'IV', (SELECT tourdb_new.types.typeId FROM tourdb_new.types WHERE tourdb_new.types.code = 'ehaft' ), 40),
+    ('E5', 'E5', 'E5', 'V', (SELECT tourdb_new.types.typeId FROM tourdb_new.types WHERE tourdb_new.types.code = 'ehaft' ), 50),
+    ('!1', '!1', '!1', 'I', (SELECT tourdb_new.types.typeId FROM tourdb_new.types WHERE tourdb_new.types.code = 'ehaft' ), 60),
+    ('!2', '!2', '!2', 'II', (SELECT tourdb_new.types.typeId FROM tourdb_new.types WHERE tourdb_new.types.code = 'ehaft' ), 70),
+    ('!3', '!3', '!3', 'II', (SELECT tourdb_new.types.typeId FROM tourdb_new.types WHERE tourdb_new.types.code = 'ehaft' ), 80),
+    ('WT1', 'WT1', 'WT1', 'I', (SELECT tourdb_new.types.typeId FROM tourdb_new.types WHERE tourdb_new.types.code = 'sst_grd' ), 10),
+    ('WT2', 'WT2', 'WT2', 'II', (SELECT tourdb_new.types.typeId FROM tourdb_new.types WHERE tourdb_new.types.code = 'sst_grd' ), 20),
+    ('WT3', 'WT3', 'WT3', 'III', (SELECT tourdb_new.types.typeId FROM tourdb_new.types WHERE tourdb_new.types.code = 'sst_grd' ), 30),
+    ('WT4', 'WT4', 'WT4', 'IV', (SELECT tourdb_new.types.typeId FROM tourdb_new.types WHERE tourdb_new.types.code = 'sst_grd' ), 40),
+    ('WT5', 'WT5', 'WT5', 'V', (SELECT tourdb_new.types.typeId FROM tourdb_new.types WHERE tourdb_new.types.code = 'sst_grd' ), 50),
+    ('T1', 'T1', 'T1', 'I', (SELECT tourdb_new.types.typeId FROM tourdb_new.types WHERE tourdb_new.types.code = 'sac_grd' ), 10),
+    ('T2', 'T2', 'T2', 'I', (SELECT tourdb_new.types.typeId FROM tourdb_new.types WHERE tourdb_new.types.code = 'sac_grd' ), 20),
+    ('T3-', 'T3', 'T3', 'II', (SELECT tourdb_new.types.typeId FROM tourdb_new.types WHERE tourdb_new.types.code = 'sac_grd' ), 30),
+    ('T3', 'T3', 'T3', 'II', (SELECT tourdb_new.types.typeId FROM tourdb_new.types WHERE tourdb_new.types.code = 'sac_grd' ), 34),
+    ('T3+', 'T3', 'T3', 'II', (SELECT tourdb_new.types.typeId FROM tourdb_new.types WHERE tourdb_new.types.code = 'sac_grd' ), 36),
+    ('T4-', 'T4', 'T4', 'II', (SELECT tourdb_new.types.typeId FROM tourdb_new.types WHERE tourdb_new.types.code = 'sac_grd' ), 40),
+    ('T4', 'T4', 'T4', 'II', (SELECT tourdb_new.types.typeId FROM tourdb_new.types WHERE tourdb_new.types.code = 'sac_grd' ), 44),
+    ('T4+', 'T4', 'T4', 'II', (SELECT tourdb_new.types.typeId FROM tourdb_new.types WHERE tourdb_new.types.code = 'sac_grd' ), 46),
+    ('T5-', 'T5', 'T5', 'III', (SELECT tourdb_new.types.typeId FROM tourdb_new.types WHERE tourdb_new.types.code = 'sac_grd' ), 50),
+    ('T5', 'T5', 'T5', 'III', (SELECT tourdb_new.types.typeId FROM tourdb_new.types WHERE tourdb_new.types.code = 'sac_grd' ), 54),
+    ('T5+', 'T5', 'T5', 'III', (SELECT tourdb_new.types.typeId FROM tourdb_new.types WHERE tourdb_new.types.code = 'sac_grd' ), 56),
+    ('T6-', 'T6', 'T6', 'III', (SELECT tourdb_new.types.typeId FROM tourdb_new.types WHERE tourdb_new.types.code = 'sac_grd' ), 60),
+    ('T6', 'T6', 'T6', 'III', (SELECT tourdb_new.types.typeId FROM tourdb_new.types WHERE tourdb_new.types.code = 'sac_grd' ), 64),
+    ('T6+', 'T6', 'T6', 'III', (SELECT tourdb_new.types.typeId FROM tourdb_new.types WHERE tourdb_new.types.code = 'sac_grd' ), 66),
+    ('L-', 'L', 'L', 'II', (SELECT tourdb_new.types.typeId FROM tourdb_new.types WHERE tourdb_new.types.code = 'sac_grd' ), 100),
+    ('L', 'L', 'L', 'II', (SELECT tourdb_new.types.typeId FROM tourdb_new.types WHERE tourdb_new.types.code = 'sac_grd' ), 104),
+    ('L+', 'L', 'L', 'II', (SELECT tourdb_new.types.typeId FROM tourdb_new.types WHERE tourdb_new.types.code = 'sac_grd' ), 106),
+    ('WS-', 'WS', 'WS-', 'III', (SELECT tourdb_new.types.typeId FROM tourdb_new.types WHERE tourdb_new.types.code = 'sac_grd' ), 110),
+    ('WS', 'WS', 'WS', 'III', (SELECT tourdb_new.types.typeId FROM tourdb_new.types WHERE tourdb_new.types.code = 'sac_grd' ), 114),
+    ('WS+', 'WS', 'WS+', 'III', (SELECT tourdb_new.types.typeId FROM tourdb_new.types WHERE tourdb_new.types.code = 'sac_grd' ), 116),
+    ('ZS-', 'ZS', 'ZS-', 'VI', (SELECT tourdb_new.types.typeId FROM tourdb_new.types WHERE tourdb_new.types.code = 'sac_grd' ), 120),
+    ('ZS', 'ZS', 'ZS', 'VI', (SELECT tourdb_new.types.typeId FROM tourdb_new.types WHERE tourdb_new.types.code = 'sac_grd' ), 124),
+    ('ZS+', 'ZS', 'ZS+', 'VI', (SELECT tourdb_new.types.typeId FROM tourdb_new.types WHERE tourdb_new.types.code = 'sac_grd' ), 126),
+    ('S-', 'SC', 'SC', 'V', (SELECT tourdb_new.types.typeId FROM tourdb_new.types WHERE tourdb_new.types.code = 'sac_grd' ), 130),
+    ('S', 'SC', 'SC', 'V', (SELECT tourdb_new.types.typeId FROM tourdb_new.types WHERE tourdb_new.types.code = 'sac_grd' ), 134),
+    ('S+', 'SC', 'SC', 'V', (SELECT tourdb_new.types.typeId FROM tourdb_new.types WHERE tourdb_new.types.code = 'sac_grd' ), 136),
+    ('SS-', 'SS', 'SS', 'V', (SELECT tourdb_new.types.typeId FROM tourdb_new.types WHERE tourdb_new.types.code = 'sac_grd' ), 140),
+    ('SS', 'SS', 'SS', 'V', (SELECT tourdb_new.types.typeId FROM tourdb_new.types WHERE tourdb_new.types.code = 'sac_grd' ), 144),
+    ('SS+', 'SS', 'SS', 'V', (SELECT tourdb_new.types.typeId FROM tourdb_new.types WHERE tourdb_new.types.code = 'sac_grd' ), 146),
+    ('AS', 'AS', 'AS', 'V', (SELECT tourdb_new.types.typeId FROM tourdb_new.types WHERE tourdb_new.types.code = 'sac_grd' ), 150),
+    ('EX', 'EX', 'EX', 'V', (SELECT tourdb_new.types.typeId FROM tourdb_new.types WHERE tourdb_new.types.code = 'sac_grd' ), 160);
+
+-- TASK: remove grades with all NULL values 
 
 -- --------------------
 -- tourdb_new.waypoints
@@ -495,6 +603,7 @@ LEFT OUTER JOIN `tourdb2_prod`.`tbl_areas` ON `tourdb2_prod`.`tbl_waypoints`.`wa
 LEFT OUTER JOIN `tourdb_new`.`areas` ON `tourdb2_prod`.`tbl_areas`.`areaNameShort` = `tourdb_new`.`areas`.`code`
 -- country
 LEFT OUTER JOIN `tourdb_new`.`countries` ON `tourdb2_prod`.`tbl_waypoints`.`waypCountry` = `tourdb_new`.`countries`.`code`;
+
 -- ---------------
 -- tourdb_new.part
 -- ---------------
@@ -600,7 +709,7 @@ LEFT OUTER JOIN `tourdb_new`.`countries` ON `tourdb2_prod`.`tbl_tracks`.`trkCoun
 -- ---------------------
 -- tourdb_new.track_part
 -- ---------------------
-
+-- TASK: remove records in source where trkId or partId does not exist anymore
 INSERT INTO `tourdb_new`.`track_part` (
 	`fk_trackId`,
 	`fk_partId`,
@@ -624,6 +733,7 @@ JOIN tourdb_new.participants ON tbl_track_part.trpaPartId = tourdb_new.participa
 -- ---------------------
 -- tourdb_new.track_wayp
 -- ---------------------
+-- TASK: remove records in source where trkId or waypId does not exist anymore
 INSERT INTO `tourdb_new`.`track_wayp` (
 	`fk_trackId`,
 	`fk_waypId`,
@@ -645,62 +755,60 @@ FROM tourdb2_prod.tbl_track_wayp
 JOIN tourdb_new.tracks ON tbl_track_wayp.trwpTrkId = tourdb_new.tracks.origTrkId
 JOIN tourdb_new.waypoints ON tbl_track_wayp.trwpWaypId = tourdb_new.waypoints.origWaypId;
 
+-- ------------------
+-- tourdb_new.sources
+-- ------------------
+INSERT INTO `tourdb_new`.`sources` (
+	`code`,
+	`name`,
+	`remarks`
+)
+SELECT 
+    `srcCode`,
+	`srcName`,
+	`srcRemarks`
+FROM tourdb2_prod.tbl_sources;
+
 -- -------------------
 -- tourdb_new.segments
 -- -------------------
-/*
 INSERT INTO `tourdb_new`.`segments` (
-	`name`,
+	`segName`,
 	`routeName`,
-	`fk_typeId`,
-	`fk_countryId`,
-	`fk_cantonId`,
-	`fk_areaId`,
+    `fk_typeId`,
+ 	`fk_countryId`,
+ 	`fk_cantonId`,
+ 	`fk_areaId`,
 	`fk_gradeId`,
 	`fk_climbGradeId`,
 	`firn`,
-	`ernsthaft`,
+	`fk_ehaftId`,
 	`expo`,
 	`rockShare`,
 	`startTargetTime`,
 	`targetEndTime`,
-	`MUStartTarget`,
-	`MDStartTarget`,
-	`MUTargetEnd`,
-	`MDTargetEnd`,
-	`fk_startLocationId`,
-	`fk_targetLocationId`,
-	`fk_finishLocationId`,
+	`MUStartTarget`, `MDStartTarget`, `MUTargetEnd`, `MDTargetEnd`,
+	`fk_startLocId`,
+	`fk_targetLocId`,
+	`fk_finishLocId`,
 	`remarks`,
 	`fk_sourceId`,
 	`sourceRef`,
-	`coordinates`,
-	`coordTop`,
-	`coordBottom`,
-	`coordLeft`,
-	`coordRight`,
-	`crtDate`,
-	`fk_crtUserId`,
-	`updDate`,
-	`fk_updUserId`
+	`coordinates`, `coordTop`, `coordBottom`, `coordLeft`, `coordRight`,
+	`crtDate`, `fk_crtUserId`, `updDate`, `fk_updUserId`,
+    `origSegId`
 )
 SELECT 
-	`segId`,
-	`segSourceFID`,
-	`segSourceRef`,
-	`segTypeFid`,
-	`segName`,
+   `segName`,
 	`segRouteName`,
-	`segStartLocationFID`,
-	`segTargetLocationFID`,
-	`segFinishLocationFID`,
-	`segCountry`,
-	`segCanton`,
-	`segAreaFID`,
-	`segGradeFID`,
-	`segClimbGradeFID`,
+	`tourdb_new`.`types`.`typeId`,
+	`countries`.`countryId`,
+	`cantons`.`cantonId`,
+	`areas`.`areaId`,
+	`grades`.`gradeId` AS 'grade',
+	`clGrd`.`gradeId` AS 'climb_grade',
 	`segFirn`,
-	`segEhaft`,
+	`ehaft`.`gradeId` AS 'ehaft',
 	`segExpo`,
 	`segRockShare`,
 	`segTStartTarget`,
@@ -709,19 +817,43 @@ SELECT
 	`segMDStartTarget`,
 	`segMUTargetEnd`,
 	`segMDTargetEnd`,
+	`segStartLoc`.`waypointId` AS 'startloc',
+	`segTargetLoc`.`waypointId` AS 'targetloc',
+	`segFinishLoc`.`waypointId` AS 'finishloc',
 	`segRemarks`,
-	`segDescent`,
-	`segCoordinates`,
-	`segCoordTop`,
-	`segCoordBottom`,
-	`segCoordLeft`,
-	`segCoordRight`,
-	`segCreatedDate`,
-	`segUpdatedDate`
+   `tourdb_new`.`sources`.`sourceId`,
+	`segSourceRef`,
+	`segCoordinates`, `segCoordTop`, `segCoordBottom`, `segCoordLeft`, `segCoordRight`,
+	`segCreatedDate`, 1, `segUpdatedDate`, 1,
+	`segId`
 FROM `tourdb2_prod`.`tbl_segments`
-;
-*/
+-- type
+JOIN `tourdb2_prod`.`tbl_types` ON `tourdb2_prod`.`tbl_segments`.`segTypeFid` = `tourdb2_prod`.`tbl_types`.`typId`
+JOIN `tourdb_new`.`types` ON `tourdb2_prod`.`tbl_types`.`typCode` = `tourdb_new`.`types`.`code`AND `types`.`usage`= 'seg'
+-- country
+LEFT OUTER JOIN `tourdb_new`.`countries` ON `tourdb2_prod`.`tbl_segments`.`segCountry` = `countries`.`code`
+-- canton
+LEFT OUTER JOIN `tourdb_new`.`cantons` ON `tourdb2_prod`.`tbl_segments`.`segCanton` = `cantons`.`code`
+-- area
+LEFT OUTER JOIN `tourdb2_prod`.`tbl_areas` ON `tourdb2_prod`.`tbl_segments`.`segAreaFID` = `tourdb2_prod`.`tbl_areas`.`areaID`
+LEFT OUTER JOIN `tourdb_new`.`areas` ON `tourdb2_prod`.`tbl_areas`.`areaNameShort` = `tourdb_new`.`areas`.`code`
+-- grade
+LEFT OUTER JOIN `tourdb_new`.`grades` ON `tourdb2_prod`.`tbl_segments`.`segGradeFID` = `tourdb_new`.`grades`.`code`
+-- climbing grade
+LEFT OUTER JOIN `tourdb_new`.`grades` clGrd ON `tourdb2_prod`.`tbl_segments`.`segClimbGradeFID` = clGrd.`code`
+-- Ernsthaftigkeit
+LEFT OUTER JOIN `tourdb_new`.`grades` ehaft ON `tourdb2_prod`.`tbl_segments`.`segEhaft` = `ehaft`.`code`
+-- segStartLocationFID
+LEFT OUTER JOIN `tourdb2_prod`.`tbl_waypoints` segStartLoc_o  ON `tourdb2_prod`.`tbl_segments`.`segStartLocationFID` = segStartLoc_o.waypID
+LEFT OUTER JOIN tourdb_new.waypoints segStartLoc ON segStartLoc.name = segStartLoc_o.waypNameShort 
+-- segTargetLocationFID
+LEFT OUTER JOIN `tourdb2_prod`.`tbl_waypoints` segTargetLoc_o ON `tourdb2_prod`.`tbl_segments`.`segTargetLocationFID` = segTargetLoc_o.waypID
+LEFT OUTER JOIN tourdb_new.waypoints segTargetLoc ON segTargetLoc.name = segTargetLoc_o.waypNameShort 
+-- segFinishLocationFID
+LEFT OUTER JOIN `tourdb2_prod`.`tbl_waypoints` segFinishLoc_o ON `tourdb2_prod`.`tbl_segments`.`segFinishLocationFID` = segFinishLoc_o.waypID
+LEFT OUTER JOIN tourdb_new.waypoints segFinishLoc ON segFinishLoc.name = segFinishLoc_o.waypNameShort 
+-- segSourceFID
+LEFT OUTER JOIN tourdb_new.sources ON tourdb2_prod.tbl_segments.segSourceFID = tourdb_new.sources.code ;
 
--- ------------------
--- tourdb_new.sources
--- ------------------
+
+

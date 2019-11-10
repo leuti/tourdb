@@ -83,10 +83,7 @@ CREATE TABLE IF NOT EXISTS `areas` (
     `fk_regionId` int(11) DEFAULT NULL,
     `code` varchar(10) NOT NULL,
     `name` varchar(255) DEFAULT NULL,
-    PRIMARY KEY (`areaId`),
-    CONSTRAINT `area_ifk_regionId`
-        FOREIGN KEY (`fk_regionId`)
-        REFERENCES `areas` (`areaId`)
+    PRIMARY KEY (`areaId`)
 ) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=utf8;
 
 -- ----------------
@@ -107,18 +104,18 @@ CREATE TABLE IF NOT EXISTS `types` (
 -- -----------------
 -- tourdb_new.grades
 -- -----------------
--- TASKS:
--- - Add types to grade table and re-activate constraint
 CREATE TABLE IF NOT EXISTS `grades` (
     `gradeId` int(11) NOT NULL AUTO_INCREMENT,
-    `code` varchar(10) NOT NULL,
-    `group` varchar(10) DEFAULT NULL,
-    `fk_typeId` int(11) DEFAULT NULL,
+    `code` varchar(10) NOT NULL COMMENT 'Code of grade',
+    `group` varchar(10) NOT NULL COMMENT 'Group of grade (without +/-',
+    `uiiaEq` varchar(10) NOT NULL COMMENT 'UIIA equivalent of grade',
+    `level` varchar(10) NOT NULL COMMENT 'Difficulty level of grade',
+    `fk_typeId` int(11) NOT NULL COMMENT 'Type of grade',
     `sort` int(11) DEFAULT NULL,
-    PRIMARY KEY (`gradeId`)
-    -- CONSTRAINT `grades_ifk_typeId`
-    --     FOREIGN KEY (`fk_typeId`)
-    --     REFERENCES `types` (`typeId`)
+    PRIMARY KEY (`gradeId`),
+    CONSTRAINT `grades_ifk_typeId`
+         FOREIGN KEY (`fk_typeId`)
+         REFERENCES `types` (`typeId`)
 ) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=utf8;
 
 -- --------------------
@@ -306,57 +303,97 @@ CREATE TABLE IF NOT EXISTS `track_wayp` (
         REFERENCES `users` (`userId`)
 ) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=utf8 COMMENT='Table links tracks with waypoints';
 
--- -------------------
--- tourdb_new.segments
--- -------------------
-CREATE TABLE IF NOT EXISTS `segments` (
-  `segmentId` int(11) NOT NULL AUTO_INCREMENT,
-  `name` varchar(255) DEFAULT NULL,
-  `routeName` varchar(255) DEFAULT NULL COMMENT 'Name of Route',
-  `fk_typeId` int(11) NOT NULL,
-  `fk_countryId` int(11) NOT NULL,
-  `fk_cantonId` int(11) NOT NULL,
-  `fk_areaId` int(11) DEFAULT NULL COMMENT 'Geographical area (in CH the SAC areas are used)',
-  `fk_gradeId` int(11) NOT NULL COMMENT 'Overall grade - Reference is SAC grade (''Hochtourenskala'')',
-  `fk_climbGradeId` int(11) DEFAULT NULL COMMENT 'Climbing Grade',
-  `firn` varchar(10) DEFAULT NULL COMMENT 'Steepness of firn ice',
-  `ernsthaft` varchar(10) DEFAULT NULL COMMENT 'Ernsthaftigkeit --> Seriousness of Route (as given by the source)',
-  `expo` text NOT NULL COMMENT 'Exposition',
-  `rockShare` int(11) DEFAULT NULL COMMENT 'Share of rock contact in relation to overall tour',
-  `startTargetTime` time DEFAULT NULL COMMENT 'Estimated time from start to target location',
-  `targetEndTime` time DEFAULT NULL COMMENT 'Time required for the descend',
-  `MUStartTarget` int(11) DEFAULT NULL COMMENT 'Asc/desc meters between start and target',
-  `MDStartTarget` int(11) DEFAULT NULL,
-  `MUTargetEnd` int(11) DEFAULT NULL,
-  `MDTargetEnd` int(11) DEFAULT NULL,
-  `fk_startLocationId` int(11) NOT NULL COMMENT 'Starting point of segment',
-  `fk_targetLocationId` int(11) NOT NULL COMMENT 'Target location of segment',
-  `fk_finishLocationId` int(11) DEFAULT NULL COMMENT 'End location of segment',
-  `remarks` varchar(1024) DEFAULT NULL,
-  `fk_sourceId` int(11) NOT NULL COMMENT 'ID of the source',
-  `sourceRef` varchar(20) NOT NULL COMMENT 'Reference or ID from the source',
-  `coordinates` longtext DEFAULT NULL COMMENT 'Coordinates (WGS84) to create tracks',
-  `coordTop` int(11) NOT NULL COMMENT 'Y coord of northern most point of segments',
-  `coordBottom` int(11) NOT NULL COMMENT 'Y coord of southern most point of segments',
-  `coordLeft` int(11) NOT NULL COMMENT 'X coord of western most point of segments',
-  `coordRight` int(11) NOT NULL COMMENT 'X coord of easter most point of segments',
-  `crtDate` timestamp NULL DEFAULT current_timestamp() COMMENT 'Created Timestamp',
-  `fk_crtUserId` int(11) NOT NULL,
-  `updDate` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
-  `fk_updUserId` int(11) NOT NULL,
-  PRIMARY KEY (`segmentId`)
-) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=utf8;
-
 -- ------------------
 -- tourdb_new.sources
 -- ------------------
 CREATE TABLE IF NOT EXISTS `sources` (
-  `sourceId` int(11) NOT NULL AUTO_INCREMENT,
-  `code` varchar(50) NOT NULL,
-  `name` varchar(255) DEFAULT NULL,
-  `remarks` varchar(1024) DEFAULT NULL,
-  PRIMARY KEY (`sourceId`)
+    `sourceId` int(11) NOT NULL AUTO_INCREMENT,
+    `code` varchar(50) NOT NULL,
+    `name` varchar(255) DEFAULT NULL,
+    `remarks` varchar(1024) DEFAULT NULL,
+    PRIMARY KEY (`sourceId`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- -------------------
+-- tourdb_new.segments
+-- -------------------
+CREATE TABLE IF NOT EXISTS `segments` (
+    `segmentId` int(11) NOT NULL AUTO_INCREMENT,
+    `segName` varchar(255) DEFAULT NULL COMMENT 'Name of Segment',
+    `routeName` varchar(255) DEFAULT NULL COMMENT 'Name of Route',
+    `fk_typeId` int(11) NOT NULL,
+    `fk_countryId` int(11) DEFAULT NULL,
+    `fk_cantonId` int(11) DEFAULT NULL,
+    `fk_areaId` int(11) DEFAULT NULL COMMENT 'Geographical area (in CH the SAC areas are used)',
+    `fk_gradeId` int(11) DEFAULT NULL COMMENT 'Overall grade - Reference is SAC grade (''Hochtourenskala'')',
+    `fk_climbGradeId` int(11) DEFAULT NULL COMMENT 'Climbing Grade',
+    `firn` varchar(10) DEFAULT NULL COMMENT 'Steepness of firn ice',
+    `fk_ehaftId` int(11) DEFAULT NULL COMMENT 'Ernsthaftigkeit --> Seriousness of Route (as given by the source)',
+    `expo` text NOT NULL COMMENT 'Exposition',
+    `rockShare` int(11) DEFAULT NULL COMMENT 'Share of rock contact in relation to overall tour',
+    `startTargetTime` time DEFAULT NULL COMMENT 'Estimated time from start to target location',
+    `targetEndTime` time DEFAULT NULL COMMENT 'Time required for the descend',
+    `MUStartTarget` int(11) DEFAULT NULL COMMENT 'Asc/desc meters between start and target',
+    `MDStartTarget` int(11) DEFAULT NULL,
+    `MUTargetEnd` int(11) DEFAULT NULL,
+    `MDTargetEnd` int(11) DEFAULT NULL,
+    `fk_startLocId` int(11) DEFAULT NULL COMMENT 'Starting point of segment',
+    `fk_targetLocId` int(11) DEFAULT NULL COMMENT 'Target location of segment',
+    `fk_finishLocId` int(11) DEFAULT NULL COMMENT 'End location of segment',
+    `remarks` varchar(1024) DEFAULT NULL,
+    `fk_sourceId` int(11) NOT NULL COMMENT 'ID of the source',
+    `sourceRef` varchar(20) NOT NULL COMMENT 'Reference or ID from the source',
+    `coordinates` longtext DEFAULT NULL COMMENT 'Coordinates (WGS84) to create tracks',
+    `coordTop` int(11) NOT NULL COMMENT 'Y coord of northern most point of segments',
+    `coordBottom` int(11) NOT NULL COMMENT 'Y coord of southern most point of segments',
+    `coordLeft` int(11) NOT NULL COMMENT 'X coord of western most point of segments',
+    `coordRight` int(11) NOT NULL COMMENT 'X coord of easter most point of segments',
+    `crtDate` timestamp NULL DEFAULT current_timestamp() COMMENT 'Created Timestamp',
+    `fk_crtUserId` int(11) NOT NULL,
+    `updDate` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+    `fk_updUserId` int(11) NOT NULL,
+    `origSegId` int(11) NOT NULL,
+    PRIMARY KEY (`segmentId`),
+    CONSTRAINT `seg_typ_ifk_typeId`
+        FOREIGN KEY (`fk_typeId`)
+        REFERENCES `types` (`typeId`),
+    CONSTRAINT `seg_ctry_ifk_countryId`
+        FOREIGN KEY (`fk_countryId`)
+        REFERENCES `countries` (`countryId`),
+    CONSTRAINT `seg_cant_ifk_cantonId`
+        FOREIGN KEY (`fk_cantonId`)
+        REFERENCES `cantons` (`cantonId`),    
+    CONSTRAINT `seg_area_ifk_areaId`
+        FOREIGN KEY (`fk_areaId`)
+        REFERENCES `areas` (`areaId`),    
+    CONSTRAINT `seg_grd_ifk_gradeId`
+        FOREIGN KEY (`fk_gradeId`)
+        REFERENCES `grades` (`gradeId`),
+    CONSTRAINT `seg_clgrd_ifk_climbGradeId`
+        FOREIGN KEY (`fk_climbGradeId`)
+        REFERENCES `grades` (`gradeId`),
+    CONSTRAINT `seg_ehaft_ifk_ehaftId`
+        FOREIGN KEY (`fk_ehaftId`)
+        REFERENCES `grades` (`gradeId`),    
+    CONSTRAINT `seg_start_ifk_startLocId`
+        FOREIGN KEY (`fk_startLocId`)   
+        REFERENCES `waypoints` (`waypointId`),    
+    CONSTRAINT `seg_target_ifk_targetLocId`
+        FOREIGN KEY (`fk_targetLocId`)
+        REFERENCES `waypoints` (`waypointId`),    
+    CONSTRAINT `seg_finish_ifk_finishLocId`
+        FOREIGN KEY (`fk_finishLocId`)
+        REFERENCES `waypoints` (`waypointId`),
+    CONSTRAINT `seg_source_ifk_sourceId`
+        FOREIGN KEY (`fk_sourceId`)
+        REFERENCES `sources` (`sourceId`),
+    CONSTRAINT `seg_crtusr_ifk_crtUserId`
+        FOREIGN KEY (`fk_crtUserId`)
+        REFERENCES `users` (`userId`),
+    CONSTRAINT `seg_updusr_ifk_updUserId`
+        FOREIGN KEY (`fk_updUserId`)
+        REFERENCES `users` (`userId`)  
+) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=utf8;
 
 /*!40101 SET SQL_MODE=IFNULL(@OLD_SQL_MODE, '') */;
 /*!40014 SET FOREIGN_KEY_CHECKS=IF(@OLD_FOREIGN_KEY_CHECKS IS NULL, 1, @OLD_FOREIGN_KEY_CHECKS) */;
