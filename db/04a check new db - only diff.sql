@@ -2,10 +2,23 @@
 -- == Check migration ==
 -- =====================
 
+-- STATUS
+-- ------
+-- kmlstyles: check missing
+-- users: check missing
+-- areas: check OK
+-- types: check OK
+-- waypoints: topOfCantons not in table waypoints
+-- participants: check OK
+-- tracks: grades not correct
+-- track_part: two duplicates
+-- track_wayp: check OK
+-- segments: check OK
+-- sources: check missing
 
--- ---------------------------------
--- Migrate data for table kmlstyles'
--- ---------------------------------
+-- --------------------------------
+-- Migrate data for table kmlstyles
+-- --------------------------------
 
 -- ----------------------------
 -- Migrate data for table users
@@ -14,7 +27,7 @@
 -- ----------------
 -- tourdb_new.areas
 -- ----------------
-SELECT `region `area COUNT(1) AS counter
+SELECT `region`, `area`, COUNT(1) AS counter
 FROM (
 	SELECT 
 		"old" AS source,
@@ -38,7 +51,7 @@ FROM (
 	left outer JOIN tourdb_new.areas regions ON tourdb_new.areas.fk_regionId = regions.areaId
 	ORDER BY region, AREA, source
 ) AS `union` 
-GROUP BY `region`, `area`
+GROUP BY `region`, `area`, `name`
 HAVING `counter` <> 2;
 
 -- ----------------
@@ -69,44 +82,18 @@ FROM (
 GROUP BY `type`, `name`, `parent`, `purpose`
 HAVING `counter` <> 2;
 
--- -----------------
--- tourdb_new.grades
--- -----------------
--- TASK:
--- add type to compare
-SELECT `code`, `group`, `sort`, COUNT(1) AS counter
-FROM (
-	SELECT 
-		"old" AS `source`,
-		`grdCodeID` AS `code`,
-		`grdGroup` AS `group`,
-	--	`grdType` AS `type`,
-		`grdSort` AS `sort`
-	FROM tourdb2_prod.tbl_grades
-	UNION ALL SELECT 
-		"new" AS `source`,
-		`grades`.`code` AS `code`,
-		`group` AS `group`,
-	--	`tourdb_new`.`types`.`code` AS `type`,
-		`sort` AS `sort`
-	FROM tourdb_new.grades
-	left outer JOIN tourdb_new.types ON fk_typeId = types.typeId
-	ORDER BY `code`, `source`
-) AS `union` 
-GROUP BY `code`, `group`, `sort`
-HAVING `counter` <> 2;
-
 -- --------------------
 -- tourdb_new.waypoints
 -- --------------------
-SELECT `origWaypId`, `name`, `type`, COUNT(1) AS counter
+SELECT `source`, `origWaypId`,`name`,`type`,`area`,`region`,`canton`,`country`,`altitude`,`owner`,`web`,`remarks`,
+		 `4000er`,`topofcanton`,`lv3e`,`lv3n`,`wgs84e`,`wgs84n`,`crtdate`,`update`, COUNT(1) AS counter
 FROM (
 	SELECT 
 		'old' AS 'source',
 		`waypId` AS 'origWaypId',
 		`waypNameLong` AS 'name',
 		`tbl_types`.`typCode` AS 'type',
-		`waypAreaFID` AS 'area',
+		tbl_areas.areaNameShort AS 'area',
 		`tbl_regions`.`regNameShort` AS 'region',
 		`waypCanton` AS 'canton',
 		`waypCountry` AS 'country',
@@ -121,9 +108,10 @@ FROM (
 		`waypCoordWGS84E` AS 'wgs84e',
 		`waypCoordWGS84N` AS 'wgs84n',
 		`waypCreatedDate` AS 'crtdate',
-		`waypUpdatedDate` AS 'upddate'
+		`waypUpdatedDate` AS 'update'
 	FROM tourdb2_prod.tbl_waypoints
 	LEFT OUTER JOIN tourdb2_prod.tbl_types ON tbl_waypoints.waypTypeFid = tbl_types.typId
+	LEFT OUTER JOIN tourdb2_prod.tbl_areas ON tbl_waypoints.waypAreaFID = tbl_areas.areaID
 	LEFT OUTER JOIN tourdb2_prod.tbl_regions ON tbl_waypoints.waypRegionFID = tbl_regions.regId
 
 	UNION ALL SELECT 
@@ -146,15 +134,17 @@ FROM (
 		`coordWGS84E` AS 'wgs84e',
 		`coordWGS84N` AS 'wgs84n',
 		`crtDate` AS 'crtdate',
-		`updDate` AS 'upddate'
+		`updDate` AS 'update'
 	FROM tourdb_new.waypoints
-	left outer JOIN tourdb_new.types ON fk_typeId = types.typeId
-	left outer JOIN tourdb_new.areas ON fk_areaId = areas.areaId
-	left outer JOIN tourdb_new.areas regions ON waypoints.fk_regionId = regions.areaId
-	left outer JOIN tourdb_new.countries ON fk_countryId = countries.countryId
+	LEFT OUTER JOIN tourdb_new.types ON fk_typeId = types.typeId
+	LEFT OUTER JOIN tourdb_new.areas ON fk_areaId = areas.areaId
+	LEFT OUTER JOIN tourdb_new.areas regions ON waypoints.fk_regionId = regions.areaId
+	LEFT OUTER JOIN tourdb_new.countries ON fk_countryId = countries.countryId
+	LEFT OUTER JOIN tourdb_new.cantons ON fk_toOfCantonId = cantons.cantonId
 	ORDER BY `origWaypId`, `name`, `type`
 ) AS `union` 
-GROUP BY `origWaypId`, `name`, `type`
+GROUP BY `origWaypId`,`name`,`type`,`area`,`region`,`canton`,`country`,`altitude`,`owner`,`web`,`remarks`,
+		 `4000er`,`topofcanton`,`lv3e`,`lv3n`,`wgs84e`,`wgs84n`,`crtdate`,`update`
 HAVING `counter` <> 2;	
 
 -- ---------------
@@ -175,7 +165,7 @@ FROM (
 		`firstName` AS 'firstname',
 		`lastName` AS 'lastname',
 		`fk_userId` AS 'partUsr'
-	FROM `participants`
+	FROM `tourdb_new`.`participants`
 	ORDER BY origPartId, source
 ) AS `union` 
 GROUP BY `origPartId`, `firstname`, `lastname`, `partUsr`
@@ -184,7 +174,11 @@ HAVING `counter` <> 2;
 -- -----------------
 -- tourdb_new.tracks
 -- -----------------
-SELECT `origTrkId`, COUNT(1) AS counter
+SELECT `source`, `origTrkId`, `name`, `route`, `subtype`, `type`, `grade`,
+		`org`, `event`, `remarks`, `country`, `distance`,`meterup`,
+		`meterdown`,`datebegin`,`peaktime`,`lowtime`,`datefinish`,
+		`startele`,`peakele`,`lowele`,`finishele`,`coord`,
+		`coordtop`,`coordbottom`,`coordleft`,`coordright`, COUNT(1) AS counter
 FROM (
 	SELECT 
 		'old' AS 'source',
@@ -328,6 +322,102 @@ HAVING `counter` <> 2;
 -- -------------------
 -- tourdb_new.segments
 -- -------------------
+SELECT `source`, `segName`, `routeName`,`type`, `country`, `canton`, `area`, `grade`, `clGrade`, `firn`,
+		`ehaft`, `expo`, `rockShare`, `TTargetEnd`, `MDStartTarget`, 
+		`MUTargetEnd`, `MDTargetEnd`, `startLoc`, `targetLoc`, `remarks`,
+		`quelle`, `sourceRef`, `coord`, `coordTop`, `coordBottom`, 
+		`coordLeft`, `coordRight`, `origSegId`, COUNT(1) AS counter
+FROM (
+	SELECT 
+		'old' AS 'source',
+		`segName` AS 'segName',
+		`segRouteName` AS 'routeName',
+		`tourdb2_prod`.`tbl_types`.`typCode` AS 'type',
+		`segCountry` AS 'country',
+		`segCanton` AS 'canton',
+		`tourdb2_prod`.`tbl_areas`.`areaNameShort` AS 'area',
+		IF( `segGradeFID` = '??', NULL, `segGradeFID`) AS 'grade',
+		IF( ISNULL(`segClimbGradeFID`), '', `segClimbGradeFID`) AS 'clGrade',
+		`segFirn` AS 'firn',
+		IF( ISNULL(`segEhaft`), '', `segEhaft`) AS 'ehaft',
+		`segExpo` AS 'expo',
+		`segRockShare` AS 'rockShare',
+		`segTStartTarget` AS 'TStartTarget', `segTTargetEnd` AS 'TTargetEnd',
+		`segMUStartTarget` AS 'MUStartTarget',	`segMDStartTarget` AS 'MDStartTarget', 
+		`segMUTargetEnd` AS 'MUTargetEnd', `segMDTargetEnd` AS 'MDTargetEnd',
+		`startLoc`.`waypNameLong` AS 'startLoc', `targetLoc`.`waypNameLong` AS 'targetLoc', `finishLoc`.`waypNameLong` AS 'finishLoc',
+		`segRemarks` AS 'remarks',
+		`segSourceFID` AS 'quelle', `segSourceRef` AS 'sourceRef',
+		`segCoordinates` AS 'coord', `segCoordTop` AS 'coordTop', `segCoordBottom` AS 'coordBottom', 
+		`segCoordLeft` AS 'coordLeft', `segCoordRight` AS 'coordRight',
+		`segId` AS 'origSegId'
+	FROM `tourdb2_prod`.`tbl_segments`
+	-- types
+	LEFT OUTER JOIN tourdb2_prod.tbl_types ON tourdb2_prod.tbl_segments.segTypeFid = tourdb2_prod.tbl_types.typId 
+	-- areas
+	LEFT OUTER JOIN tourdb2_prod.tbl_areas ON tourdb2_prod.tbl_segments.segAreaFID = tourdb2_prod.tbl_areas.areaID
+	-- Start Location 
+	LEFT OUTER JOIN tourdb2_prod.tbl_waypoints startLoc ON tourdb2_prod.tbl_segments.segStartLocationFID = startLoc.waypID
+	-- Target Location 
+	LEFT OUTER JOIN tourdb2_prod.tbl_waypoints targetLoc ON tourdb2_prod.tbl_segments.segTargetLocationFID = targetLoc.waypID
+	-- Finish Location 
+	LEFT OUTER JOIN tourdb2_prod.tbl_waypoints finishLoc ON tourdb2_prod.tbl_segments.segFinishLocationFID = finishLoc.waypID
+
+	UNION ALL SELECT
+		'new' AS 'source',
+		`segName` AS 'segName',
+		`routeName` AS 'routeName',
+		`tourdb_new`.`types`.`code` AS 'type',
+		`tourdb_new`.`countries`.`code` AS 'country',
+		IF( ISNULL(`tourdb_new`.`cantons`.`code`), '', `tourdb_new`.`cantons`.`code`) AS 'canton',
+		`tourdb_new`.`areas`.`code` AS 'area',
+		`tourdb_new`.`grades`.`code` AS 'grade',
+		IF( ISNULL(`clGrades`.`code`), '', `clGrades`.`code`) AS 'clGrade',
+		`firn` AS 'firn',
+		IF( ISNULL(`ehaft`.`code`), '', `ehaft`.`code`) AS 'ehaft',
+		`expo` AS 'expo',
+		`rockShare` AS 'rockShare',
+		`startTargetTime` AS 'TStartTarget',`targetEndTime` AS 'TTargetEnd',
+		`MUStartTarget` AS 'MUStartTarget', `MDStartTarget` AS 'MDStartTarget', 
+		`MUTargetEnd` AS 'MUTargetEnd', `MDTargetEnd` AS 'MDTargetEnd',
+		`startLoc`.`name` AS 'startLoc', 
+		`targetLoc`.`name` AS 'targetLoc', 
+		`finishLoc`.`name` AS 'finishLoc',
+		`tourdb_new`.`segments`.`remarks` AS 'remarks',
+		tourdb_new.sources.code AS 'quelle', `sourceRef` AS 'sourceRef',
+		`coordinates` AS 'coord', `coordTop` AS 'coordTop', `coordBottom` AS 'coordBottom', 
+		`coordLeft` AS 'coordLeft', `coordRight` AS 'coordRight',
+		`origSegId` AS 'origSegId'
+	FROM `tourdb_new`.`segments`
+	-- types
+	LEFT OUTER JOIN tourdb_new.types ON tourdb_new.segments.fk_typeId = tourdb_new.types.typeId
+	-- country
+	LEFT OUTER  JOIN tourdb_new.countries ON tourdb_new.segments.fk_countryId = tourdb_new.countries.countryId
+	-- canton
+	LEFT OUTER  JOIN tourdb_new.cantons ON tourdb_new.segments.fk_cantonId = tourdb_new.cantons.cantonId
+	-- areas
+	LEFT OUTER  JOIN tourdb_new.areas ON tourdb_new.segments.fk_areaId = tourdb_new.areas.areaId
+	-- grade
+	LEFT OUTER  JOIN tourdb_new.grades ON tourdb_new.segments.fk_gradeId = tourdb_new.grades.gradeId
+	-- climbing grade
+	LEFT OUTER  JOIN tourdb_new.grades clGrades ON tourdb_new.segments.fk_climbGradeId = clGrades.gradeId
+	-- Ernsthaftigkeit
+	LEFT OUTER  JOIN tourdb_new.grades ehaft ON tourdb_new.segments.fk_ehaftId = ehaft.gradeId
+	-- Start loaction 
+	LEFT OUTER  JOIN tourdb_new.waypoints startLoc ON tourdb_new.segments.fk_startLocId = startLoc.waypointId
+	-- Target loaction 
+	LEFT OUTER  JOIN tourdb_new.waypoints targetLoc ON tourdb_new.segments.fk_targetLocId = targetLoc.waypointId
+	-- Finish loaction 
+	LEFT OUTER  JOIN tourdb_new.waypoints finishLoc ON tourdb_new.segments.fk_finishLocId = finishLoc.waypointId
+	-- Source
+	LEFT OUTER  JOIN tourdb_new.sources ON tourdb_new.segments.fk_sourceId = tourdb_new.sources.sourceId
+) AS `union` 
+GROUP BY `segName`, `routeName`,`type`, `country`, `canton`, `area`, `grade`, `clGrade`, `firn`,
+		`ehaft`, `expo`, `rockShare`, `TTargetEnd`, `MDStartTarget`, 
+		`MUTargetEnd`, `MDTargetEnd`, `startLoc`, `targetLoc`, `remarks`,
+		`quelle`, `sourceRef`, `coord`, `coordTop`, `coordBottom`, 
+		`coordLeft`, `coordRight`, `origSegId`
+HAVING `counter` <> 2;	
 
 -- ------------------
 -- tourdb_new.sources
