@@ -564,7 +564,7 @@ INSERT INTO `tourdb_new`.`waypoints` (
 	`website`,
 	`remarks`,
 	`UIAA4000`,
-	`topOfCanton`,
+	`fk_topOfCantonId`,
 	`coordLV3Est`,
 	`coordLV3Nord`,
 	`coordWGS84E`,
@@ -587,7 +587,7 @@ SELECT
 	`tourdb2_prod`.`tbl_waypoints`.`waypWebsite`,
 	`tourdb2_prod`.`tbl_waypoints`.`waypRemarks`,
 	`tourdb2_prod`.`tbl_waypoints`.`waypUIAA4000`,
-	IF(`tourdb2_prod`.`tbl_waypoints`.`waypToOfCant` = 0, NULL, `tourdb2_prod`.`tbl_waypoints`.`waypToOfCant`) AS waypToOfCant,
+	`tourdb_new`.`cantons`.`cantonId` AS 'topofcanton',
 	`tourdb2_prod`.`tbl_waypoints`.`waypCoordLV3Est`,
 	`tourdb2_prod`.`tbl_waypoints`.`waypCoordLV3Nord`,
 	`tourdb2_prod`.`tbl_waypoints`.`waypCoordWGS84E`,
@@ -608,7 +608,9 @@ LEFT OUTER JOIN `tourdb_new`.`areas` AS regions ON `tourdb2_prod`.`tbl_regions`.
 LEFT OUTER JOIN `tourdb2_prod`.`tbl_areas` ON `tourdb2_prod`.`tbl_waypoints`.`waypAreaFID` = `tourdb2_prod`.`tbl_areas`.`areaID`
 LEFT OUTER JOIN `tourdb_new`.`areas` ON `tourdb2_prod`.`tbl_areas`.`areaNameShort` = `tourdb_new`.`areas`.`code`
 -- country
-LEFT OUTER JOIN `tourdb_new`.`countries` ON `tourdb2_prod`.`tbl_waypoints`.`waypCountry` = `tourdb_new`.`countries`.`code`;
+LEFT OUTER JOIN `tourdb_new`.`countries` ON `tourdb2_prod`.`tbl_waypoints`.`waypCountry` = `tourdb_new`.`countries`.`code`
+-- to of canton
+LEFT OUTER JOIN `tourdb_new`.`cantons` ON tourdb2_prod.tbl_waypoints.waypToOfCant = tourdb_new.cantons.code;
 
 -- ---------------
 -- tourdb_new.part

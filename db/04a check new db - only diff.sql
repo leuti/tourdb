@@ -128,7 +128,7 @@ FROM (
 		`website` AS 'web',
 		`remarks` AS 'remarks',
 		`UIAA4000` AS '4000er',
-		`topOfCanton` AS 'topofcanton',
+		`tourdb_new`.cantons.code AS 'topofcanton',
 		`coordLV3Est` AS 'lv3e',
 		`coordLV3Nord` AS 'lv3n',
 		`coordWGS84E` AS 'wgs84e',
@@ -140,7 +140,7 @@ FROM (
 	LEFT OUTER JOIN tourdb_new.areas ON fk_areaId = areas.areaId
 	LEFT OUTER JOIN tourdb_new.areas regions ON waypoints.fk_regionId = regions.areaId
 	LEFT OUTER JOIN tourdb_new.countries ON fk_countryId = countries.countryId
-	LEFT OUTER JOIN tourdb_new.cantons ON fk_toOfCantonId = cantons.cantonId
+	LEFT OUTER JOIN tourdb_new.cantons ON tourdb_new.waypoints.fk_topOfCantonId = cantons.cantonId
 	ORDER BY `origWaypId`, `name`, `type`
 ) AS `union` 
 GROUP BY `origWaypId`,`name`,`type`,`area`,`region`,`canton`,`country`,`altitude`,`owner`,`web`,`remarks`,

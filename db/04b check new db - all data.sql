@@ -2,12 +2,9 @@
 -- == Check migration ==
 -- =====================
 
--- TASKS
--- - ensure that all attributes are included in the group by clause
-
--- ---------------------------------
--- Migrate data for table kmlstyles'
--- ---------------------------------
+-- --------------------------------
+-- Migrate data for table kmlstyles
+-- --------------------------------
 
 -- ----------------------------
 -- Migrate data for table users

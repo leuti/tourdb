@@ -134,7 +134,7 @@ CREATE TABLE IF NOT EXISTS `waypoints` (
     `website` varchar(255) DEFAULT NULL,
     `remarks` varchar(1024) DEFAULT NULL,
     `UIAA4000` tinyint(1) DEFAULT 0,
-    `topOfCanton` varchar(2) DEFAULT NULL,
+    `fk_topOfCantonId` int(11) DEFAULT NULL,
     `coordLV3Est` int(11) DEFAULT NULL,
     `coordLV3Nord` int(11) DEFAULT NULL,
     `coordWGS84E` double DEFAULT NULL,
