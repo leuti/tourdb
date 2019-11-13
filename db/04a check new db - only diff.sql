@@ -4,30 +4,83 @@
 
 -- STATUS
 -- ------
--- kmlstyles: check missing
--- users: check missing
--- areas: check OK
+-- kmlstyles: check OK
+-- users: check OK
+-- areas: check OK, but count of records missing
 -- types: check OK
--- waypoints: topOfCantons not in table waypoints
+-- waypoints: waypoints with two countries not correct
 -- participants: check OK
--- tracks: grades not correct
--- track_part: two duplicates
--- track_wayp: check OK
+-- tracks: check OK
+-- track_part: check OK / count not working as tourdb2_prod has records with no references to track and/or part
+-- track_wayp: check OK, count not working as tourdb2_prod has records with no references to track and/or part
 -- segments: check OK
--- sources: check missing
+-- sources: check OK
 
 -- --------------------------------
--- Migrate data for table kmlstyles
+-- tourdb_new.kmlstyles
 -- --------------------------------
+SELECT `source`, `code`, `colornormal`, `widthnormal`,`linenormal`, `colorhighlighted`, `widthhighlighted`, `linehighlighted`, COUNT(1) AS `counter`
+FROM (
+	SELECT 
+		"old" AS source,
+		styCode AS 'code',
+		styColorNormal AS 'colornormal',
+		styWidthNormal AS 'widthnormal',
+		styLineNormal AS 'linenormal',
+		styColorHighlighted AS 'colorhighlighted',
+		styWidthHighlighted AS 'widthhighlighted',
+		styLineHighlighted AS 'linehighlighted',
+		( SELECT COUNT(1) FROM tourdb2_prod.tbl_kmlstyle ) AS `anzahl`
+	FROM tourdb2_prod.tbl_kmlstyle
+	
+	UNION ALL SELECT 
+		"new" AS source,
+		code AS 'code',
+		colorNormal AS 'colornormal',
+		widthNormal AS 'widthnormal',
+		lineNormal AS 'linenormal',
+		colorHighlighted AS 'colorhighlighted',
+		widthHighlighted AS 'widthhighlighted',
+		lineHighlighted AS 'linehighlighted',
+		( SELECT COUNT(1) FROM tourdb_new.kmlstyles ) AS `anzahl`
+	FROM tourdb_new.kmlstyles
+) AS `union` 
+GROUP BY `code`, `colornormal`, `widthnormal`,`linenormal`, `colorhighlighted`, `widthhighlighted`, `linehighlighted`
+HAVING `counter` <> 2;
 
 -- ----------------------------
--- Migrate data for table users
+-- tourdb_new.users
 -- ----------------------------
+SELECT `source`, `login`, `firstname`, `lastname`, `password`, COUNT(1) AS `counter`
+FROM (
+	SELECT 
+		"old" AS source,
+		tourdb2_prod.tbl_users.usrLogin AS 'login',
+		tourdb2_prod.tbl_users.usrFirstName AS 'firstname',
+		tourdb2_prod.tbl_users.usrLastName AS 'lastname',
+		tourdb2_prod.tbl_users.usrEmail AS 'email',
+		tourdb2_prod.tbl_users.usrPasswd AS 'password',
+		( SELECT COUNT(1) FROM tourdb2_prod.tbl_users ) AS `anzahl`
+	FROM tourdb2_prod.tbl_users
+	
+	UNION ALL SELECT 
+		"new" AS source,
+		users.login AS 'login',
+		users.firstName AS 'firstname',
+		users.lastName AS 'lastname',
+		users.email AS 'email',
+		users.passwd AS 'password',
+		( SELECT COUNT(1) FROM tourdb_new.users ) AS `anzahl`
+	FROM tourdb_new.users
+) AS `union` 
+GROUP BY `login`, `firstname`, `lastname`, `password`
+HAVING `counter` <> 2;
+
 
 -- ----------------
 -- tourdb_new.areas
 -- ----------------
-SELECT `region`, `area`, COUNT(1) AS counter
+SELECT `source`,`region`, `area`, COUNT(1) AS `counter`
 FROM (
 	SELECT 
 		"old" AS source,
@@ -35,6 +88,7 @@ FROM (
 		null AS `area`,
 		tourdb2_prod.tbl_regions.regNameLong AS `name`
 	FROM tourdb2_prod.tbl_regions
+	
 	UNION ALL SELECT 
 		"old" AS source,
 		tourdb2_prod.tbl_regions.regNameShort AS `region`,
@@ -42,14 +96,15 @@ FROM (
 		tourdb2_prod.tbl_areas.areaNameLong AS `name`
 	FROM tourdb2_prod.tbl_regions
 	JOIN tourdb2_prod.tbl_areas ON tourdb2_prod.tbl_regions.regID = tourdb2_prod.tbl_areas.areaRegionFID
+
 	UNION ALL SELECT 
 		"new" AS SOURCE,
 		IF(ISNULL(tourdb_new.areas.fk_regionId), tourdb_new.areas.code, regions.code)  AS `region`,
 		IF(ISNULL(tourdb_new.areas.fk_regionId), regions.code, tourdb_new.areas.code) AS `area`,
 		tourdb_new.areas.name AS `name`
 	FROM tourdb_new.areas
-	left outer JOIN tourdb_new.areas regions ON tourdb_new.areas.fk_regionId = regions.areaId
-	ORDER BY region, AREA, source
+	left outer JOIN tourdb_new.areas regions ON tourdb_new.areas.fk_regionId = regions.id
+	ORDER BY region, area, source
 ) AS `union` 
 GROUP BY `region`, `area`, `name`
 HAVING `counter` <> 2;
@@ -57,14 +112,15 @@ HAVING `counter` <> 2;
 -- ----------------
 -- tourdb_new.types
 -- ----------------
-SELECT `type`, `name`, `parent`, `purpose`, COUNT(1) AS counter
+SELECT `type`, `name`, `parent`, `purpose`, `anzahl`, COUNT(1) AS counter
 FROM (
 	SELECT 
 			"old" AS source,
 			tourdb2_prod.tbl_types.typCode AS `type`,
 			tourdb2_prod.tbl_types.typName AS `name`,
 			ptype.typCode AS `parent`,
-			tourdb2_prod.tbl_types.typPurpose AS `purpose`
+			tourdb2_prod.tbl_types.typPurpose AS `purpose`,
+			( SELECT COUNT(1) FROM tourdb2_prod.tbl_types ) AS `anzahl`
 		FROM tourdb2_prod.tbl_types
 		left OUTER JOIN tourdb2_prod.tbl_types ptype ON tourdb2_prod.tbl_types.typParentId = ptype.typId
 		
@@ -74,19 +130,20 @@ FROM (
 			tourdb_new.types.code AS `type`,
 			tourdb_new.types.name AS `name`,
 			ptype.code AS `parent`,
-			types.usage AS `purpose`
+			types.usage AS `purpose`,
+			( SELECT COUNT(1) FROM tourdb_new.types ) AS `anzahl`	
 		FROM tourdb_new.types
-		left outer JOIN tourdb_new.types ptype ON tourdb_new.types.fk_parentId = ptype.typeId
+		left outer JOIN tourdb_new.types ptype ON tourdb_new.types.fk_parentId = ptype.id
 		ORDER BY `parent`, `type`, `source`
 ) AS `union` 
-GROUP BY `type`, `name`, `parent`, `purpose`
+GROUP BY `type`, `name`, `parent`, `purpose`, `anzahl`
 HAVING `counter` <> 2;
 
 -- --------------------
 -- tourdb_new.waypoints
 -- --------------------
 SELECT `source`, `origWaypId`,`name`,`type`,`area`,`region`,`canton`,`country`,`altitude`,`owner`,`web`,`remarks`,
-		 `4000er`,`topofcanton`,`lv3e`,`lv3n`,`wgs84e`,`wgs84n`,`crtdate`,`update`, COUNT(1) AS counter
+		 `4000er`,`topofcanton`,`lv3e`,`lv3n`,`wgs84e`,`wgs84n`,`crtdate`,`update`, `anzahl`, COUNT(1) AS counter
 FROM (
 	SELECT 
 		'old' AS 'source',
@@ -108,7 +165,8 @@ FROM (
 		`waypCoordWGS84E` AS 'wgs84e',
 		`waypCoordWGS84N` AS 'wgs84n',
 		`waypCreatedDate` AS 'crtdate',
-		`waypUpdatedDate` AS 'update'
+		`waypUpdatedDate` AS 'update',
+		( SELECT COUNT(1) FROM tourdb2_prod.tbl_waypoints ) AS `anzahl`
 	FROM tourdb2_prod.tbl_waypoints
 	LEFT OUTER JOIN tourdb2_prod.tbl_types ON tbl_waypoints.waypTypeFid = tbl_types.typId
 	LEFT OUTER JOIN tourdb2_prod.tbl_areas ON tbl_waypoints.waypAreaFID = tbl_areas.areaID
@@ -134,41 +192,44 @@ FROM (
 		`coordWGS84E` AS 'wgs84e',
 		`coordWGS84N` AS 'wgs84n',
 		`crtDate` AS 'crtdate',
-		`updDate` AS 'update'
+		`updDate` AS 'update',
+		( SELECT COUNT(1) FROM tourdb_new.waypoints ) AS `anzahl`
 	FROM tourdb_new.waypoints
-	LEFT OUTER JOIN tourdb_new.types ON fk_typeId = types.typeId
-	LEFT OUTER JOIN tourdb_new.areas ON fk_areaId = areas.areaId
-	LEFT OUTER JOIN tourdb_new.areas regions ON waypoints.fk_regionId = regions.areaId
-	LEFT OUTER JOIN tourdb_new.countries ON fk_countryId = countries.countryId
-	LEFT OUTER JOIN tourdb_new.cantons ON tourdb_new.waypoints.fk_topOfCantonId = cantons.cantonId
+	LEFT OUTER JOIN tourdb_new.types ON fk_typeId = types.id
+	LEFT OUTER JOIN tourdb_new.areas ON fk_areaId = areas.id
+	LEFT OUTER JOIN tourdb_new.areas regions ON waypoints.fk_regionId = regions.id
+	LEFT OUTER JOIN tourdb_new.countries ON fk_countryId = countries.id
+	LEFT OUTER JOIN tourdb_new.cantons ON tourdb_new.waypoints.fk_topOfCantonId = cantons.id
 	ORDER BY `origWaypId`, `name`, `type`
 ) AS `union` 
 GROUP BY `origWaypId`,`name`,`type`,`area`,`region`,`canton`,`country`,`altitude`,`owner`,`web`,`remarks`,
-		 `4000er`,`topofcanton`,`lv3e`,`lv3n`,`wgs84e`,`wgs84n`,`crtdate`,`update`
+		 `4000er`,`topofcanton`,`lv3e`,`lv3n`,`wgs84e`,`wgs84n`,`crtdate`,`update`, `anzahl`
 HAVING `counter` <> 2;	
 
 -- ---------------
 -- tourdb_new.part
 -- ---------------
-SELECT `origPartId`, COUNT(1) AS counter
+SELECT `origPartId`, `anzahl`, COUNT(1) AS counter
 FROM (
 	SELECT
 		'old' AS 'source',
 		`prtId` AS 'origPartId', 
 		`prtFirstName` AS 'firstname',
 		`prtLastName` AS 'lastname',
-		`partUsrId` AS 'partUsr'
+		`partUsrId` AS 'partUsr',
+		( SELECT COUNT(1) FROM `tourdb2_prod`.`tbl_part` ) AS `anzahl`
 	FROM  `tourdb2_prod`.`tbl_part`
 	UNION ALL SELECT 
 		'new' AS 'source',
 		`origPartId` AS 'origPartId',
 		`firstName` AS 'firstname',
 		`lastName` AS 'lastname',
-		`fk_userId` AS 'partUsr'
+		`fk_userId` AS 'partUsr',
+		( SELECT COUNT(1) FROM `tourdb_new`.`participants` ) AS `anzahl`
 	FROM `tourdb_new`.`participants`
 	ORDER BY origPartId, source
 ) AS `union` 
-GROUP BY `origPartId`, `firstname`, `lastname`, `partUsr`
+GROUP BY `origPartId`, `firstname`, `lastname`, `partUsr`, `anzahl`
 HAVING `counter` <> 2;	
 
 -- -----------------
@@ -178,7 +239,7 @@ SELECT `source`, `origTrkId`, `name`, `route`, `subtype`, `type`, `grade`,
 		`org`, `event`, `remarks`, `country`, `distance`,`meterup`,
 		`meterdown`,`datebegin`,`peaktime`,`lowtime`,`datefinish`,
 		`startele`,`peakele`,`lowele`,`finishele`,`coord`,
-		`coordtop`,`coordbottom`,`coordleft`,`coordright`, COUNT(1) AS counter
+		`coordtop`,`coordbottom`,`coordleft`,`coordright`, `anzahl`, COUNT(1) AS counter
 FROM (
 	SELECT 
 		'old' AS 'source',
@@ -207,7 +268,8 @@ FROM (
 		`trkCoordTop` AS 'coordtop',
 		`trkCoordBottom` AS 'coordbottom',
 		`trkCoordLeft` AS 'coordleft', 
-		`trkCoordRight` AS 'coordright'
+		`trkCoordRight` AS 'coordright',
+		( SELECT COUNT(1) FROM tourdb2_prod.tbl_tracks ) AS `anzahl`
 	FROM tourdb2_prod.tbl_tracks
 	-- types
 	LEFT OUTER JOIN tourdb2_prod.tbl_types ON tbl_tracks.trkTypeFid = tbl_types.typId
@@ -225,7 +287,7 @@ FROM (
 		`tourdb_new`.`tracks`.`org` AS 'org',
 		`tourdb_new`.`tracks`.`event` AS 'event',
 		`tourdb_new`.`tracks`.`remarks` AS 'remarks',
-		`countries`.`code` AS 'country',
+		IF(`countries`.`code` IS NULL, '', `countries`.`code`) AS 'country',
 		`tourdb_new`.`tracks`.`distance` AS 'distance',
 		`tourdb_new`.`tracks`.`meterUp`  AS 'meterup',
 		`tourdb_new`.`tracks`.`meterDown` AS 'meterdown',
@@ -241,16 +303,17 @@ FROM (
 		`tourdb_new`.`tracks`.`coordTop` AS 'coordtop',
 		`tourdb_new`.`tracks`.`coordBottom` AS 'coordbottom',
 		`tourdb_new`.`tracks`.`coordLeft` AS 'coordleft',
-		`tourdb_new`.`tracks`.`coordRight` AS 'coordright'
+		`tourdb_new`.`tracks`.`coordRight` AS 'coordright',
+		( SELECT COUNT(1) FROM tourdb_new.tracks ) AS `anzahl`
 	FROM tourdb_new.tracks
 	-- subtype
-	LEFT OUTER JOIN tourdb_new.types stype ON tourdb_new.tracks.fk_subtypeId = stype.typeId
+	LEFT OUTER JOIN tourdb_new.types stype ON tourdb_new.tracks.fk_subtypeId = stype.id
 	-- type
-	LEFT OUTER JOIN tourdb_new.types ptype ON stype.fk_parentId = ptype.typeId
+	LEFT OUTER JOIN tourdb_new.types ptype ON stype.fk_parentId = ptype.id
 	-- grade
-	LEFT OUTER JOIN tourdb_new.grades ON tourdb_new.tracks.fk_gradeId = grades.gradeId
+	LEFT OUTER JOIN tourdb_new.grades ON tourdb_new.tracks.fk_gradeId = grades.id
 	-- country
-	LEFT OUTER JOIN tourdb_new.countries ON tourdb_new.tracks.fk_countryId = countries.countryId
+	LEFT OUTER JOIN tourdb_new.countries ON tourdb_new.tracks.fk_countryId = countries.id
 
 	ORDER BY origTrkId, source
 ) AS `union` 
@@ -258,21 +321,22 @@ GROUP BY `origTrkId`, `name`, `route`, `subtype`, `type`, `grade`,
 		`org`, `event`, `remarks`, `country`, `distance`,`meterup`,
 		`meterdown`,`datebegin`,`peaktime`,`lowtime`,`datefinish`,
 		`startele`,`peakele`,`lowele`,`finishele`,`coord`,
-		`coordtop`,`coordbottom`,`coordleft`,`coordright`
+		`coordtop`,`coordbottom`,`coordleft`,`coordright`, `anzahl`
 HAVING `counter` <> 2;	
-
 
 -- ---------------------
 -- tourdb_new.track_part
 -- ---------------------
-SELECT `origTrkId`, COUNT(1) AS counter
+-- SELECT `source`, `origTrkId`, `anzahl`, COUNT(1) AS counter
+SELECT `source`, `origTrkId`, COUNT(1) AS counter
 FROM (
 	SELECT 
 		'old' AS 'source',
 		tbl_tracks.trkId AS 'origtrkid',
 		tourdb2_prod.tbl_tracks.trkTrackName AS 'name',
 		tourdb2_prod.tbl_part.prtFirstName AS 'firstname',
-		tourdb2_prod.tbl_part.prtLastName AS 'lastname' 
+		tourdb2_prod.tbl_part.prtLastName AS 'lastname',
+		( SELECT COUNT(1) FROM tourdb2_prod.tbl_track_part ) AS `anzahl` 
 	FROM tourdb2_prod.tbl_track_part
 	JOIN tourdb2_prod.tbl_tracks ON tourdb2_prod.tbl_track_part.trpaTrkId = tourdb2_prod.tbl_tracks.trkId
 	JOIN tourdb2_prod.tbl_part ON tourdb2_prod.tbl_part.prtId = tourdb2_prod.tbl_track_part.trpaPartId
@@ -282,25 +346,29 @@ FROM (
 		tracks.origTrkId AS 'origtrkid',
 		tracks.name AS 'name',
 		participants.firstName AS 'firstname',
-		participants.lastName AS 'lastname' 
+		participants.lastName AS 'lastname',
+		( SELECT COUNT(1) FROM tourdb_new.track_part ) AS `anzahl` 
 	FROM tourdb_new.track_part 
-	JOIN tourdb_new.tracks ON tourdb_new.tracks.trackId = track_part.fk_trackId
-	JOIN tourdb_new.participants ON tourdb_new.participants.participantId = track_part.fk_partId
+	JOIN tourdb_new.tracks ON tourdb_new.tracks.id = track_part.fk_trackId
+	JOIN tourdb_new.participants ON tourdb_new.participants.id = track_part.fk_partId
 	ORDER BY origtrkid, firstname, lastname, source
 ) AS `union` 
+-- GROUP BY `origTrkId`, `name`, `firstname`, `lastname`, `anzahl`
 GROUP BY `origTrkId`, `name`, `firstname`, `lastname`
 HAVING `counter` <> 2;	
 
 -- ---------------------
 -- tourdb_new.track_wayp
 -- ---------------------
+-- SELECT `origTrkId`, `trackname`, `waypointname`, `anzahl`, COUNT(1) AS counter
 SELECT `origTrkId`, `trackname`, `waypointname`, COUNT(1) AS counter
 FROM (
 	SELECT 
 		'old' AS 'source',
 		tbl_tracks.trkId AS 'origtrkid',
 		tourdb2_prod.tbl_tracks.trkTrackName AS 'trackname',
-		tourdb2_prod.tbl_waypoints.waypNameLong AS 'waypointname'
+		tourdb2_prod.tbl_waypoints.waypNameLong AS 'waypointname',
+		( SELECT COUNT(1) FROM tourdb2_prod.tbl_track_wayp ) AS `anzahl` 
 	FROM tourdb2_prod.tbl_track_wayp
 	JOIN tourdb2_prod.tbl_tracks ON tourdb2_prod.tbl_track_wayp.trwpTrkId = tourdb2_prod.tbl_tracks.trkId
 	JOIN tourdb2_prod.tbl_waypoints ON tourdb2_prod.tbl_waypoints.waypId = tourdb2_prod.tbl_track_wayp.trwpWaypId
@@ -309,15 +377,16 @@ FROM (
 		'new' AS 'source',
 		tracks.origTrkId AS 'origtrkid',
 		tracks.name AS 'trackname',
-		waypoints.name AS 'waypointname'
+		waypoints.name AS 'waypointname',
+		( SELECT COUNT(1) FROM tourdb_new.track_wayp ) AS `anzahl` 
 	FROM tourdb_new.track_wayp 
-	JOIN tourdb_new.tracks ON tourdb_new.tracks.trackId = track_wayp.fk_trackId
-	JOIN tourdb_new.waypoints ON tourdb_new.waypoints.waypointId = track_wayp.fk_waypId
+	JOIN tourdb_new.tracks ON tourdb_new.tracks.id = track_wayp.fk_trackId
+	JOIN tourdb_new.waypoints ON tourdb_new.waypoints.id = track_wayp.fk_waypId
 	ORDER BY origtrkid, trackname, waypointname, source
 ) AS `union` 
+-- GROUP BY `origTrkId`, `trackname`, `waypointname`, `anzahl` 
 GROUP BY `origTrkId`, `trackname`, `waypointname`
-HAVING `counter` <> 2;	
-
+HAVING `counter` <> 2;		
 
 -- -------------------
 -- tourdb_new.segments
@@ -390,27 +459,27 @@ FROM (
 		`origSegId` AS 'origSegId'
 	FROM `tourdb_new`.`segments`
 	-- types
-	LEFT OUTER JOIN tourdb_new.types ON tourdb_new.segments.fk_typeId = tourdb_new.types.typeId
+	LEFT OUTER JOIN tourdb_new.types ON tourdb_new.segments.fk_typeId = tourdb_new.types.id
 	-- country
-	LEFT OUTER  JOIN tourdb_new.countries ON tourdb_new.segments.fk_countryId = tourdb_new.countries.countryId
+	LEFT OUTER  JOIN tourdb_new.countries ON tourdb_new.segments.fk_countryId = tourdb_new.countries.id
 	-- canton
-	LEFT OUTER  JOIN tourdb_new.cantons ON tourdb_new.segments.fk_cantonId = tourdb_new.cantons.cantonId
+	LEFT OUTER  JOIN tourdb_new.cantons ON tourdb_new.segments.fk_cantonId = tourdb_new.cantons.id
 	-- areas
-	LEFT OUTER  JOIN tourdb_new.areas ON tourdb_new.segments.fk_areaId = tourdb_new.areas.areaId
+	LEFT OUTER  JOIN tourdb_new.areas ON tourdb_new.segments.fk_areaId = tourdb_new.areas.id
 	-- grade
-	LEFT OUTER  JOIN tourdb_new.grades ON tourdb_new.segments.fk_gradeId = tourdb_new.grades.gradeId
+	LEFT OUTER  JOIN tourdb_new.grades ON tourdb_new.segments.fk_gradeId = tourdb_new.grades.id
 	-- climbing grade
-	LEFT OUTER  JOIN tourdb_new.grades clGrades ON tourdb_new.segments.fk_climbGradeId = clGrades.gradeId
+	LEFT OUTER  JOIN tourdb_new.grades clGrades ON tourdb_new.segments.fk_climbGradeId = clGrades.id
 	-- Ernsthaftigkeit
-	LEFT OUTER  JOIN tourdb_new.grades ehaft ON tourdb_new.segments.fk_ehaftId = ehaft.gradeId
+	LEFT OUTER  JOIN tourdb_new.grades ehaft ON tourdb_new.segments.fk_ehaftId = ehaft.id
 	-- Start loaction 
-	LEFT OUTER  JOIN tourdb_new.waypoints startLoc ON tourdb_new.segments.fk_startLocId = startLoc.waypointId
+	LEFT OUTER  JOIN tourdb_new.waypoints startLoc ON tourdb_new.segments.fk_startLocId = startLoc.id
 	-- Target loaction 
-	LEFT OUTER  JOIN tourdb_new.waypoints targetLoc ON tourdb_new.segments.fk_targetLocId = targetLoc.waypointId
+	LEFT OUTER  JOIN tourdb_new.waypoints targetLoc ON tourdb_new.segments.fk_targetLocId = targetLoc.id
 	-- Finish loaction 
-	LEFT OUTER  JOIN tourdb_new.waypoints finishLoc ON tourdb_new.segments.fk_finishLocId = finishLoc.waypointId
+	LEFT OUTER  JOIN tourdb_new.waypoints finishLoc ON tourdb_new.segments.fk_finishLocId = finishLoc.id
 	-- Source
-	LEFT OUTER  JOIN tourdb_new.sources ON tourdb_new.segments.fk_sourceId = tourdb_new.sources.sourceId
+	LEFT OUTER  JOIN tourdb_new.sources ON tourdb_new.segments.fk_sourceId = tourdb_new.sources.id
 ) AS `union` 
 GROUP BY `segName`, `routeName`,`type`, `country`, `canton`, `area`, `grade`, `clGrade`, `firn`,
 		`ehaft`, `expo`, `rockShare`, `TTargetEnd`, `MDStartTarget`, 
@@ -422,3 +491,23 @@ HAVING `counter` <> 2;
 -- ------------------
 -- tourdb_new.sources
 -- ------------------
+SELECT `source`, `code`, `name`,`remarks`, COUNT(1) AS counter
+FROM (
+	SELECT 
+		"old" AS source,
+		tbl_sources.srcCode AS 'code',
+		tbl_sources.srcName AS 'name',
+		tbl_sources.srcRemarks AS 'remarks',
+		( SELECT COUNT(1) FROM tourdb2_prod.tbl_sources ) AS `anzahl`
+	FROM tourdb2_prod.tbl_sources
+	
+	UNION ALL SELECT 
+		"new" AS source,
+		sources.code AS 'code',
+		sources.name AS 'name',
+		sources.remarks AS 'remarks',
+		( SELECT COUNT(1) FROM tourdb_new.sources ) AS `anzahl`
+	FROM tourdb_new.sources
+) AS `union` 
+GROUP BY `code`, `name`,`remarks`
+HAVING `counter` <> 2;	

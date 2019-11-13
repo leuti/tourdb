@@ -11,6 +11,12 @@
 /*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
 
+-- ****************************
+-- *****   T  A   S   K   *****
+-- ****************************
+-- Change Unique ID from tableId to id (e.g. cantonId to Id) --> including all indices
+-- Change name of indices to tbl_field
+
 
 -- Database structure for new tourdb
 CREATE DATABASE IF NOT EXISTS `tourdb_new` /*!40100 DEFAULT CHARACTER SET utf8 */;
@@ -24,22 +30,22 @@ USE `tourdb_new`;
 -- tourdb_new.kmlStyles
 -- --------------------
 CREATE TABLE IF NOT EXISTS `kmlStyles` (
-  `kmlstyleId` int(11) NOT NULL AUTO_INCREMENT,
+  `id` int(11) NOT NULL AUTO_INCREMENT,
   `code` varchar(10) NOT NULL,
-  `styColorNormal` varchar(8) NOT NULL,
-  `styWidthNormal` int(11) NOT NULL,
-  `styLineNormal` varchar(30) DEFAULT NULL,
-  `styColorHighlighted` varchar(8) DEFAULT NULL,
-  `styWidthHighlighted` int(11) DEFAULT NULL,
-  `styLineHighlighted` varchar(30) DEFAULT NULL,
-  PRIMARY KEY (`kmlstyleId`)
+  `colorNormal` varchar(8) NOT NULL,
+  `widthNormal` int(11) NOT NULL,
+  `lineNormal` varchar(30) DEFAULT NULL,
+  `colorHighlighted` varchar(8) DEFAULT NULL,
+  `widthHighlighted` int(11) DEFAULT NULL,
+  `lineHighlighted` varchar(30) DEFAULT NULL,
+  PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=utf8;
 
 -- ----------------
 -- tourdb_new.users
 -- ----------------
 CREATE TABLE IF NOT EXISTS `users` (
-  `userId` int(11) NOT NULL AUTO_INCREMENT COMMENT 'Unique Id of table',
+  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT 'Unique Id of table',
   `login` varchar(50) NOT NULL COMMENT 'Login the user enters to access the db',
   `firstName` varchar(255) NOT NULL,
   `lastName` varchar(255) NOT NULL,
@@ -49,80 +55,80 @@ CREATE TABLE IF NOT EXISTS `users` (
   `fk_crtUserId` int(11) NOT NULL,
   `updDate` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
   `fk_updUserId` int(11) NOT NULL,
-  PRIMARY KEY (`userId`),
-  CONSTRAINT `login_UNIQUE` UNIQUE (`login`),
-  CONSTRAINT `email_UNIQUE` UNIQUE (`email`)
+  PRIMARY KEY (`id`),
+  CONSTRAINT `login` UNIQUE (`login`),
+  CONSTRAINT `email` UNIQUE (`email`)
 ) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=utf8;
 
 -- --------------------
 -- tourdb_new.countries
 -- --------------------
 CREATE TABLE IF NOT EXISTS `countries` (
-    `countryId` int(11) NOT NULL AUTO_INCREMENT,
+    `id` int(11) NOT NULL AUTO_INCREMENT,
     `code` VARCHAR(2) NOT NULL,  
     `name` varchar(255) DEFAULT NULL,
-    PRIMARY KEY (`countryId`),
-    CONSTRAINT `code_UNIQUE` UNIQUE (`code`)
+    PRIMARY KEY (`id`),
+    CONSTRAINT `code` UNIQUE (`code`)
 ) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=utf8;
 
 -- ------------------
 -- tourdb_new.cantons
 -- ------------------
 CREATE TABLE IF NOT EXISTS `cantons` (
-    `cantonId` int(11) NOT NULL AUTO_INCREMENT,
+    `id` int(11) NOT NULL AUTO_INCREMENT,
     `code` VARCHAR(2) NOT NULL,  
     `name` varchar(255) DEFAULT NULL,
-    PRIMARY KEY (`cantonId`)
+    PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=utf8;
 
 -- ----------------
 -- tourdb_new.areas
 -- ----------------
 CREATE TABLE IF NOT EXISTS `areas` (
-    `areaId` int(11) NOT NULL AUTO_INCREMENT,
+    `id` int(11) NOT NULL AUTO_INCREMENT,
     `fk_regionId` int(11) DEFAULT NULL,
     `code` varchar(10) NOT NULL,
     `name` varchar(255) DEFAULT NULL,
-    PRIMARY KEY (`areaId`)
+    PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=utf8;
 
 -- ----------------
 -- tourdb_new.types
 -- ----------------
 CREATE TABLE IF NOT EXISTS `types` (
-    `typeId` int(11) NOT NULL AUTO_INCREMENT COMMENT 'Unique Primary Id',
+    `id` int(11) NOT NULL AUTO_INCREMENT COMMENT 'Unique Primary Id',
     `code` varchar(10) NOT NULL COMMENT 'Code of Type (e.g. SST)',
     `name` varchar(50) NOT NULL,
     `fk_parentId` int(11) DEFAULT NULL COMMENT 'Points to partent type if subtype',
     `usage` varchar(10) NOT NULL COMMENT 'Tracks, Waypoints, Segments',
-    PRIMARY KEY (`typeId`),
+    PRIMARY KEY (`id`),
     CONSTRAINT `types_ifk_parentId`
         FOREIGN KEY (`fk_parentId`)
-        REFERENCES `types` (`typeId`)
+        REFERENCES `types` (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=utf8 COMMENT='Collects all types and subtypes for tracks, waypoints, segs';
 
 -- -----------------
 -- tourdb_new.grades
 -- -----------------
 CREATE TABLE IF NOT EXISTS `grades` (
-    `gradeId` int(11) NOT NULL AUTO_INCREMENT,
+    `id` int(11) NOT NULL AUTO_INCREMENT,
     `code` varchar(10) NOT NULL COMMENT 'Code of grade',
     `group` varchar(10) NOT NULL COMMENT 'Group of grade (without +/-',
     `uiiaEq` varchar(10) NOT NULL COMMENT 'UIIA equivalent of grade',
     `level` varchar(10) NOT NULL COMMENT 'Difficulty level of grade',
     `fk_typeId` int(11) NOT NULL COMMENT 'Type of grade',
     `sort` int(11) DEFAULT NULL,
-    PRIMARY KEY (`gradeId`),
+    PRIMARY KEY (`id`),
     CONSTRAINT `grades_ifk_typeId`
          FOREIGN KEY (`fk_typeId`)
-         REFERENCES `types` (`typeId`)
+         REFERENCES `types` (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=utf8;
 
 -- --------------------
 -- tourdb_new.waypoints
 -- --------------------
 CREATE TABLE IF NOT EXISTS `waypoints` (
-    `waypointId` int(11) NOT NULL AUTO_INCREMENT,
+    `id` int(11) NOT NULL AUTO_INCREMENT,
     `name` varchar(255) DEFAULT NULL,
     `fk_typeId` int(11) NOT NULL,
     `fk_areaId` int(11) DEFAULT NULL,
@@ -144,32 +150,32 @@ CREATE TABLE IF NOT EXISTS `waypoints` (
     `updDate` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
     `fk_updUserId` int(11) NOT NULL,
     `origWaypId` int(11) NOT NULL COMMENT 'Required for migation - to be deleted',
-    PRIMARY KEY (`waypointId`),
+    PRIMARY KEY (`id`),
     CONSTRAINT `wayp_ifk_typeId`
         FOREIGN KEY (`fk_typeId`)
-        REFERENCES `types` (`typeId`),
+        REFERENCES `types` (`id`),
     CONSTRAINT `wayp_ifk_regionId`
         FOREIGN KEY (`fk_regionId`)
-        REFERENCES `areas` (`areaId`),
+        REFERENCES `areas` (`id`),
     CONSTRAINT `wayp_ifk_areaId`
         FOREIGN KEY (`fk_areaId`)
-        REFERENCES `areas` (`areaId`),
+        REFERENCES `areas` (`id`),
     CONSTRAINT `wayp_ifk_countryId`
         FOREIGN KEY (`fk_countryId`)
-        REFERENCES `countries` (`countryId`),
+        REFERENCES `countries` (`id`),
     CONSTRAINT `wayp_ifk_crtUserId`
         FOREIGN KEY (`fk_crtUserId`)
-        REFERENCES `users` (`userId`),
+        REFERENCES `users` (`id`),
     CONSTRAINT `wayp_ifk_updUserId`
         FOREIGN KEY (`fk_updUserId`)
-        REFERENCES `users` (`userId`)
+        REFERENCES `users` (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=utf8;
 
 -- ---------------
 -- tourdb_new.part
 -- ---------------
 CREATE TABLE IF NOT EXISTS `participants` (
-    `participantId` int(11) NOT NULL AUTO_INCREMENT,
+    `id` int(11) NOT NULL AUTO_INCREMENT,
     `firstName` varchar(30) DEFAULT NULL,
     `lastName` varchar(30) DEFAULT NULL,
     `fk_userId` int(11) NOT NULL ,
@@ -178,23 +184,23 @@ CREATE TABLE IF NOT EXISTS `participants` (
     `updDate` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
     `fk_updUserId` int(11) NOT NULL,
     `origPartId` int(11) NOT NULL COMMENT 'Required for migation - to be deleted',
-    PRIMARY KEY (`participantId`),
+    PRIMARY KEY (`id`),
     CONSTRAINT `part_ifk_userId`
         FOREIGN KEY (`fk_userId`)
-        REFERENCES `users` (`userId`),
+        REFERENCES `users` (`id`),
     CONSTRAINT `part_ifk_crtUserId`
         FOREIGN KEY (`fk_crtUserId`)
-        REFERENCES `users` (`userId`),
+        REFERENCES `users` (`id`),
     CONSTRAINT `part_ifk_updUserId`
         FOREIGN KEY (`fk_updUserId`)
-        REFERENCES `users` (`userId`)
+        REFERENCES `users` (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=utf8;
 
 -- -----------------
 -- tourdb_new.tracks
 -- -----------------
 CREATE TABLE IF NOT EXISTS `tracks` (
-    `trackId` int(11) NOT NULL AUTO_INCREMENT,
+    `id` int(11) NOT NULL AUTO_INCREMENT,
     `name` varchar(255) DEFAULT NULL COMMENT 'Target of the track',
     `route` varchar(1024) DEFAULT NULL COMMENT 'Key waypoints on the route',
     `fk_subtypeId` int(11) NOT NULL,
@@ -226,61 +232,61 @@ CREATE TABLE IF NOT EXISTS `tracks` (
     `updDate` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
     `fk_updUserId` int(11) NOT NULL,
     `origTrkId` int(11) NOT NULL COMMENT 'Required for migation - to be deleted',
-    PRIMARY KEY (`trackId`),
+    PRIMARY KEY (`id`),
     CONSTRAINT `trk_ifk_subtypeId`
         FOREIGN KEY (`fk_subtypeId`)
-        REFERENCES `types` (`typeId`),
+        REFERENCES `types` (`id`),
     CONSTRAINT `trk_ifk_gradeId`
         FOREIGN KEY (`fk_gradeId`)
-        REFERENCES `grades` (`gradeId`),
+        REFERENCES `grades` (`id`),
     CONSTRAINT `trk_ifk_areaId`
         FOREIGN KEY (`fk_areaId`)
-        REFERENCES `areas` (`areaId`),
+        REFERENCES `areas` (`id`),
     CONSTRAINT `trk_ifk_countryId`
         FOREIGN KEY (`fk_countryId`)
-        REFERENCES `countries` (`countryId`),
+        REFERENCES `countries` (`id`),
     CONSTRAINT `trk_ifk_userId`
         FOREIGN KEY (`fk_userId`)
-        REFERENCES `users` (`userId`),
+        REFERENCES `users` (`id`),
     CONSTRAINT `trk_ifk_crtUserId`
         FOREIGN KEY (`fk_crtUserId`)
-        REFERENCES `users` (`userId`),
+        REFERENCES `users` (`id`),
     CONSTRAINT `trk_ifk_updUserId`
         FOREIGN KEY (`fk_updUserId`)
-        REFERENCES `users` (`userId`)
+        REFERENCES `users` (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=utf8;
 
 -- ---------------------
 -- tourdb_new.track_part
 -- ---------------------
 CREATE TABLE IF NOT EXISTS `track_part` (
-    `trackPartId` int(11) NOT NULL AUTO_INCREMENT COMMENT 'record ID',
+    `id` int(11) NOT NULL AUTO_INCREMENT COMMENT 'record ID',
     `fk_trackId` int(11) NOT NULL COMMENT 'ID of related track',
     `fk_partId` int(11) NOT NULL COMMENT 'ID of participant',
     `crtDate` timestamp NULL DEFAULT current_timestamp() COMMENT 'Created Timestamp',
     `fk_crtUserId` int(11) NOT NULL,
     `updDate` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
     `fk_updUserId` int(11) NOT NULL,
-    PRIMARY KEY (`trackPartId`),
+    PRIMARY KEY (`id`),
     CONSTRAINT `trkpart_ifk_trackId`
         FOREIGN KEY (`fk_trackId`)
-        REFERENCES `tracks` (`trackId`),
+        REFERENCES `tracks` (`id`),
     CONSTRAINT `trkpart_ifk_partId`
         FOREIGN KEY (`fk_partId`)
-        REFERENCES `participants` (`participantId`),
+        REFERENCES `participants` (`id`),
     CONSTRAINT `trkpart_ifk_crtUserId`
         FOREIGN KEY (`fk_crtUserId`)
-        REFERENCES `users` (`userId`),
+        REFERENCES `users` (`id`),
     CONSTRAINT `trkpart_ifk_updUserId`
         FOREIGN KEY (`fk_updUserId`)
-        REFERENCES `users` (`userId`)
+        REFERENCES `users` (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=utf8 COMMENT='Table links tracks with waypoints';
 
 -- ---------------------
 -- tourdb_new.track_wayp
 -- ---------------------
 CREATE TABLE IF NOT EXISTS `track_wayp` (
-    `trackWaypId` int(11) NOT NULL AUTO_INCREMENT COMMENT 'record ID',
+    `id` int(11) NOT NULL AUTO_INCREMENT COMMENT 'record ID',
     `fk_trackId` int(11) NOT NULL COMMENT 'ID of related track',
     `fk_waypId` int(11) NOT NULL COMMENT 'ID of waypoint',
     `reached` tinyint(1) NOT NULL COMMENT 'True if reached',
@@ -288,37 +294,37 @@ CREATE TABLE IF NOT EXISTS `track_wayp` (
     `fk_crtUserId` int(11) NOT NULL,
     `updDate` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
     `fk_updUserId` int(11) NOT NULL,
-    PRIMARY KEY (`trackWaypId`),
+    PRIMARY KEY (`id`),
     CONSTRAINT `trkwayp_ifk_trackId`
         FOREIGN KEY (`fk_trackId`)
-        REFERENCES `tracks` (`trackId`),
+        REFERENCES `tracks` (`id`),
     CONSTRAINT `trkwayp_ifk_waypId`
         FOREIGN KEY (`fk_waypId`)
-        REFERENCES `waypoints` (`waypointId`),
+        REFERENCES `waypoints` (`id`),
     CONSTRAINT `trkwayp_ifk_crtUserId`
         FOREIGN KEY (`fk_crtUserId`)
-        REFERENCES `users` (`userId`),
+        REFERENCES `users` (`id`),
     CONSTRAINT `trkwayp_ifk_updUserId`
         FOREIGN KEY (`fk_updUserId`)
-        REFERENCES `users` (`userId`)
+        REFERENCES `users` (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=utf8 COMMENT='Table links tracks with waypoints';
 
 -- ------------------
 -- tourdb_new.sources
 -- ------------------
 CREATE TABLE IF NOT EXISTS `sources` (
-    `sourceId` int(11) NOT NULL AUTO_INCREMENT,
+    `id` int(11) NOT NULL AUTO_INCREMENT,
     `code` varchar(50) NOT NULL,
     `name` varchar(255) DEFAULT NULL,
     `remarks` varchar(1024) DEFAULT NULL,
-    PRIMARY KEY (`sourceId`)
+    PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- -------------------
 -- tourdb_new.segments
 -- -------------------
 CREATE TABLE IF NOT EXISTS `segments` (
-    `segmentId` int(11) NOT NULL AUTO_INCREMENT,
+    `id` int(11) NOT NULL AUTO_INCREMENT,
     `segName` varchar(255) DEFAULT NULL COMMENT 'Name of Segment',
     `routeName` varchar(255) DEFAULT NULL COMMENT 'Name of Route',
     `fk_typeId` int(11) NOT NULL,
@@ -353,46 +359,46 @@ CREATE TABLE IF NOT EXISTS `segments` (
     `updDate` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
     `fk_updUserId` int(11) NOT NULL,
     `origSegId` int(11) NOT NULL,
-    PRIMARY KEY (`segmentId`),
-    CONSTRAINT `seg_typ_ifk_typeId`
+    PRIMARY KEY (`id`),
+    CONSTRAINT `seg_ifk_typeId`
         FOREIGN KEY (`fk_typeId`)
-        REFERENCES `types` (`typeId`),
-    CONSTRAINT `seg_ctry_ifk_countryId`
+        REFERENCES `types` (`id`),
+    CONSTRAINT `seg_ifk_countryId`
         FOREIGN KEY (`fk_countryId`)
-        REFERENCES `countries` (`countryId`),
-    CONSTRAINT `seg_cant_ifk_cantonId`
+        REFERENCES `countries` (`id`),
+    CONSTRAINT `seg_ifk_cantonId`
         FOREIGN KEY (`fk_cantonId`)
-        REFERENCES `cantons` (`cantonId`),    
-    CONSTRAINT `seg_area_ifk_areaId`
+        REFERENCES `cantons` (`id`),    
+    CONSTRAINT `seg_ifk_areaId`
         FOREIGN KEY (`fk_areaId`)
-        REFERENCES `areas` (`areaId`),    
-    CONSTRAINT `seg_grd_ifk_gradeId`
+        REFERENCES `areas` (`id`),    
+    CONSTRAINT `seg_ifk_gradeId`
         FOREIGN KEY (`fk_gradeId`)
-        REFERENCES `grades` (`gradeId`),
-    CONSTRAINT `seg_clgrd_ifk_climbGradeId`
+        REFERENCES `grades` (`id`),
+    CONSTRAINT `seg_ifk_climbGradeId`
         FOREIGN KEY (`fk_climbGradeId`)
-        REFERENCES `grades` (`gradeId`),
-    CONSTRAINT `seg_ehaft_ifk_ehaftId`
+        REFERENCES `grades` (`id`),
+    CONSTRAINT `seg_ifk_ehaftId`
         FOREIGN KEY (`fk_ehaftId`)
-        REFERENCES `grades` (`gradeId`),    
-    CONSTRAINT `seg_start_ifk_startLocId`
+        REFERENCES `grades` (`id`),    
+    CONSTRAINT `seg_ifk_startLocId`
         FOREIGN KEY (`fk_startLocId`)   
-        REFERENCES `waypoints` (`waypointId`),    
-    CONSTRAINT `seg_target_ifk_targetLocId`
+        REFERENCES `waypoints` (`id`),    
+    CONSTRAINT `seg_ifk_targetLocId`
         FOREIGN KEY (`fk_targetLocId`)
-        REFERENCES `waypoints` (`waypointId`),    
-    CONSTRAINT `seg_finish_ifk_finishLocId`
+        REFERENCES `waypoints` (`id`),    
+    CONSTRAINT `seg_ifk_finishLocId`
         FOREIGN KEY (`fk_finishLocId`)
-        REFERENCES `waypoints` (`waypointId`),
-    CONSTRAINT `seg_source_ifk_sourceId`
+        REFERENCES `waypoints` (`id`),
+    CONSTRAINT `seg_ifk_sourceId`
         FOREIGN KEY (`fk_sourceId`)
-        REFERENCES `sources` (`sourceId`),
-    CONSTRAINT `seg_crtusr_ifk_crtUserId`
+        REFERENCES `sources` (`id`),
+    CONSTRAINT `seg_ifk_crtUserId`
         FOREIGN KEY (`fk_crtUserId`)
-        REFERENCES `users` (`userId`),
-    CONSTRAINT `seg_updusr_ifk_updUserId`
+        REFERENCES `users` (`id`),
+    CONSTRAINT `seg_ifk_updUserId`
         FOREIGN KEY (`fk_updUserId`)
-        REFERENCES `users` (`userId`)  
+        REFERENCES `users` (`id`)  
 ) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=utf8;
 
 /*!40101 SET SQL_MODE=IFNULL(@OLD_SQL_MODE, '') */;
