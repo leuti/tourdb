@@ -350,7 +350,7 @@ FROM (
 		( SELECT COUNT(1) FROM tourdb_new.track_part ) AS `anzahl` 
 	FROM tourdb_new.track_part 
 	JOIN tourdb_new.tracks ON tourdb_new.tracks.id = track_part.fk_trackId
-	JOIN tourdb_new.participants ON tourdb_new.participants.id = track_part.fk_partId
+	JOIN tourdb_new.participants ON tourdb_new.participants.id = track_part.fk_participantId
 	ORDER BY origtrkid, firstname, lastname, source
 ) AS `union` 
 -- GROUP BY `origTrkId`, `name`, `firstname`, `lastname`, `anzahl`
@@ -381,7 +381,7 @@ FROM (
 		( SELECT COUNT(1) FROM tourdb_new.track_wayp ) AS `anzahl` 
 	FROM tourdb_new.track_wayp 
 	JOIN tourdb_new.tracks ON tourdb_new.tracks.id = track_wayp.fk_trackId
-	JOIN tourdb_new.waypoints ON tourdb_new.waypoints.id = track_wayp.fk_waypId
+	JOIN tourdb_new.waypoints ON tourdb_new.waypoints.id = track_wayp.fk_waypointId
 	ORDER BY origtrkid, trackname, waypointname, source
 ) AS `union` 
 -- GROUP BY `origTrkId`, `trackname`, `waypointname`, `anzahl` 

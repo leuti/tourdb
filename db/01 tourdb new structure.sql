@@ -262,7 +262,7 @@ CREATE TABLE IF NOT EXISTS `tracks` (
 CREATE TABLE IF NOT EXISTS `track_part` (
     `id` int(11) NOT NULL AUTO_INCREMENT COMMENT 'record ID',
     `fk_trackId` int(11) NOT NULL COMMENT 'ID of related track',
-    `fk_partId` int(11) NOT NULL COMMENT 'ID of participant',
+    `fk_participantId` int(11) NOT NULL COMMENT 'ID of participant',
     `crtDate` timestamp NULL DEFAULT current_timestamp() COMMENT 'Created Timestamp',
     `fk_crtUserId` int(11) NOT NULL,
     `updDate` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
@@ -271,8 +271,8 @@ CREATE TABLE IF NOT EXISTS `track_part` (
     CONSTRAINT `trkpart_ifk_trackId`
         FOREIGN KEY (`fk_trackId`)
         REFERENCES `tracks` (`id`),
-    CONSTRAINT `trkpart_ifk_partId`
-        FOREIGN KEY (`fk_partId`)
+    CONSTRAINT `trkpart_ifk_participantId`
+        FOREIGN KEY (`fk_participantId`)
         REFERENCES `participants` (`id`),
     CONSTRAINT `trkpart_ifk_crtUserId`
         FOREIGN KEY (`fk_crtUserId`)
@@ -288,7 +288,7 @@ CREATE TABLE IF NOT EXISTS `track_part` (
 CREATE TABLE IF NOT EXISTS `track_wayp` (
     `id` int(11) NOT NULL AUTO_INCREMENT COMMENT 'record ID',
     `fk_trackId` int(11) NOT NULL COMMENT 'ID of related track',
-    `fk_waypId` int(11) NOT NULL COMMENT 'ID of waypoint',
+    `fk_waypointId` int(11) NOT NULL COMMENT 'ID of waypoint',
     `reached` tinyint(1) NOT NULL COMMENT 'True if reached',
     `crtDate` timestamp NULL DEFAULT current_timestamp() COMMENT 'Created Timestamp',
     `fk_crtUserId` int(11) NOT NULL,
@@ -298,8 +298,8 @@ CREATE TABLE IF NOT EXISTS `track_wayp` (
     CONSTRAINT `trkwayp_ifk_trackId`
         FOREIGN KEY (`fk_trackId`)
         REFERENCES `tracks` (`id`),
-    CONSTRAINT `trkwayp_ifk_waypId`
-        FOREIGN KEY (`fk_waypId`)
+    CONSTRAINT `trkwayp_ifk_waypointId`
+        FOREIGN KEY (`fk_waypointId`)
         REFERENCES `waypoints` (`id`),
     CONSTRAINT `trkwayp_ifk_crtUserId`
         FOREIGN KEY (`fk_crtUserId`)

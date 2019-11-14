@@ -14,64 +14,76 @@ function getAllRecs(usrId, options) {
         // Select track main data
         let query = `
             SELECT 
-            t.trkId AS id, 
-                t.trkTrackName AS name, 
-                t.trkRoute AS route , 
-                t.trkDateBegin AS dateBegin, 
-                typ.typName AS type,
-                styp.typName AS subtype, 
-                t.trkOrg AS org, 
-                t.trkEvent AS event, 
-                t.trkRemarks AS remarks, 
-                t.trkDistance AS distance, 
-                t.trkTimeToPeak AS timeToPeak, 
-                t.trkTimeToFinish AS timeToFinish, 
-                t.trkGrade AS grade, 
-                t.trkMeterUp AS meterUp, 
-                t.trkMeterDown AS meterDown, 
-                t.trkCountry AS country, 
+                tracks.id AS id, 
+                tracks.name AS name, 
+                tracks.route AS route , 
+                tracks.dateBegin AS dateBegin, 
+                types.name AS type,
+                subtypes.name AS subtype, 
+                tracks.org AS org, 
+                tracks.event AS event, 
+                tracks.remarks AS remarks, 
+                tracks.distance AS distance, 
+                tracks.peakTime AS timeToPeak, 
+                tracks.dateFinish AS timeToFinish, 
+                grades.code AS grade, 
+                tracks.meterUp AS meterUp, 
+                tracks.meterDown AS meterDown, 
+                countries.code AS country, 
                 GROUP_CONCAT(DISTINCT part.part SEPARATOR ', ') AS participants, 
-                GROUP_CONCAT(DISTINCT huts.waypNameLong SEPARATOR ', ') AS huts,
-                GROUP_CONCAT(DISTINCT peaks.waypNameLong SEPARATOR ', ') AS peaks,
-                GROUP_CONCAT(DISTINCT wpt.waypNameLong SEPARATOR ', ') AS waypoints 
-            FROM tbl_tracks t
-            JOIN tbl_types typ ON t.trkTypeFid = typ.typId
-            JOIN tbl_types styp ON t.trkSubtypeFid = styp.typId
+                GROUP_CONCAT(DISTINCT huts.name SEPARATOR ', ') AS huts,
+                GROUP_CONCAT(DISTINCT peaks.name SEPARATOR ', ') AS peaks,
+                GROUP_CONCAT(DISTINCT wpt.name SEPARATOR ', ') AS waypoints 
+            FROM tracks
+            -- Subtypes
+            JOIN types subtypes ON tracks.fk_subtypeId = subtypes.id
+            -- Types
+            JOIN types ON subtypes.fk_parentId = types.id
+            -- participants
             LEFT OUTER JOIN (
-                SELECT tp.trpaTrkId, CONCAT(p.prtFirstName, ' ', p.prtLastName) AS part
-                FROM tbl_track_part tp 
-                JOIN tbl_part p ON tp.trpaPartId = p.prtId
+                SELECT track_part.fk_participantId, CONCAT(participants.firstName, ' ', participants.lastName) AS part
+                FROM track_part 
+                JOIN participants ON track_part.fk_participantId = participants.id
                 ) AS part
-            ON t.trkId = part.trpaTrkId
+            ON tracks.id = part.fk_participantId
+            -- waypoints as huts
             LEFT OUTER JOIN (
-                SELECT tw.trwpTrkId, wayp.waypNameLong
-                FROM tbl_track_wayp tw 
-                JOIN tbl_waypoints wayp ON tw.trwpWaypId = wayp.waypID
-                JOIN tbl_types typ ON wayp.waypTypeFid = typ.typId
-                WHERE typ.typCode = 'hu'
+                SELECT track_wayp.fk_trackId, waypoints.name
+                FROM track_wayp
+                JOIN waypoints ON track_wayp.fk_waypointId = waypoints.id
+                JOIN types ON waypoints.fk_typeId = types.id
+                WHERE types.code = 'hu'
                 ) AS huts
-            ON t.trkId = huts.trwpTrkId
+            ON tracks.id = huts.fk_trackId
+            -- waypoints as peaks
             LEFT OUTER JOIN (
-                SELECT tw.trwpTrkId, wayp.waypNameLong
-                FROM tbl_track_wayp tw 
-                JOIN tbl_waypoints wayp ON tw.trwpWaypId = wayp.waypID
-                JOIN tbl_types typ ON wayp.waypTypeFid = typ.typId
-                WHERE typ.typCode = 'gi'
+                SELECT track_wayp.fk_trackId, waypoints.name
+                FROM track_wayp 
+                JOIN waypoints ON track_wayp.fk_waypointId = waypoints.id
+                JOIN types ON waypoints.fk_typeId = types.id
+                WHERE types.code = 'gi'
                 ) AS peaks
-            ON t.trkId = peaks.trwpTrkId
+            ON tracks.id = peaks.fk_trackId
+            -- waypoints as waypoints
             LEFT OUTER JOIN (
-                SELECT tw.trwpTrkId, wayp.waypNameLong
-                FROM tbl_track_wayp tw 
-                JOIN tbl_waypoints wayp ON tw.trwpWaypId = wayp.waypID
-                JOIN tbl_types typ ON wayp.waypTypeFid = typ.typId
-                WHERE typ.typCode not in ('hu','gi')
+                SELECT track_wayp.fk_trackId, waypoints.name
+                FROM track_wayp 
+                JOIN waypoints ON track_wayp.fk_waypointId = waypoints.id
+                JOIN types ON waypoints.fk_typeId = types.id
+                WHERE types.code not in ('hu','gi')
                 ) AS wpt
-            ON t.trkId = wpt.trwpTrkId
-            WHERE trkUsrId = ?
-            GROUP BY t.trkId, t.trkTrackName, t.trkRoute, t.trkDateBegin, typ.typName,
-                styp.typName, t.trkOrg, t.trkEvent, t.trkRemarks, t.trkDistance, 
-                t.trkTimeToPeak, t.trkTimeToFinish, t.trkGrade, t.trkMeterUp, t.trkMeterDown, t.trkCountry
-            `;
+            ON tracks.id = wpt.fk_trackId
+            -- grades
+            LEFT OUTER JOIN grades ON tracks.fk_gradeId = grades.id
+            -- countries
+            LEFT OUTER JOIN countries ON tracks.fk_countryId = countries.id
+            -- WHERE Clause
+            WHERE tracks.fk_userId = ?
+            GROUP BY tracks.id, tracks.name, tracks.route, tracks.dateBegin, types.name,
+                subtypes.name, tracks.org, tracks.event, tracks.remarks, tracks.distance, 
+                tracks.peakTime, tracks.dateFinish, grades.code, tracks.meterUp, 
+                tracks.meterDown, countries.code
+        `;
         
         if (options.sort && ['asc', 'desc'].includes(options.sort.toLowerCase())) {
             //query += ' ORDER BY title ' + options.sort;                   // Sorting needs to be implemented with GRID
@@ -116,9 +128,9 @@ function getOne(id, usrId) {
             JOIN tbl_types typ ON t.trkTypeFid = typ.typId
             JOIN tbl_types styp ON t.trkSubtypeFid = styp.typId
             LEFT OUTER JOIN (
-                SELECT tp.trpaTrkId, CONCAT(p.prtFirstName, ' ', p.prtLastName) AS part
-                FROM tbl_track_part tp 
-                JOIN tbl_part p ON tp.trpaPartId = p.prtId
+                SELECT track_part.trpaTrkId, CONCAT(p.prtFirstName, ' ', p.prtLastName) AS part
+                FROM tbl_track_part track_part 
+                JOIN tbl_part p ON track_part.trpaPartId = p.prtId
                 ) AS part
             ON t.trkId = part.trpaTrkId
             LEFT OUTER JOIN (

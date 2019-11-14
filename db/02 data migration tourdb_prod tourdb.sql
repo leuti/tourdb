@@ -718,7 +718,7 @@ LEFT OUTER JOIN `tourdb_new`.`countries` ON `tourdb2_prod`.`tbl_tracks`.`trkCoun
 -- TASK: remove records in source where trkId or partId does not exist anymore
 INSERT INTO `tourdb_new`.`track_part` (
 	`fk_trackId`,
-	`fk_partId`,
+	`fk_participantId`,
 	`crtDate`,
 	`fk_crtUserId`,
 	`updDate`,
@@ -742,7 +742,7 @@ JOIN tourdb_new.participants ON tbl_track_part.trpaPartId = tourdb_new.participa
 -- TASK: remove records in source where trkId or waypId does not exist anymore
 INSERT INTO `tourdb_new`.`track_wayp` (
 	`fk_trackId`,
-	`fk_waypId`,
+	`fk_waypointId`,
     `reached`, 
 	`crtDate`,
 	`fk_crtUserId`,
