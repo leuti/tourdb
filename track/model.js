@@ -3,7 +3,7 @@ const connection = mysql.createConnection({
     host: 'localhost',
     user: 'root',
     password: 'root',
-    database: 'tourdb2_prod',
+    database: 'tourdb_new',
 });
 
 connection.connect();
